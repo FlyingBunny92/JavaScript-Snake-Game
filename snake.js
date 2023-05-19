@@ -126,12 +126,59 @@ function computeDirection() {
     return [dir_x, dir_y];
 }
 
+function checkSafe(x, y) {
+    var dir = computeDirection();
+    var x_dir = DOT_SIZE;
+    var y_dir = DOT_SIZE;
+    if(dir[0] > 0){
+        x_dir = DOT_SIZE;
+    }else if(dir[0] < 0){
+        x_dir = -DOT_SIZE;
+    }else if(dir[1] > 0){
+        y_dir = DOT_SIZE;
+    }else if(dir[1] < 0){
+        y_dir = -DOT_SIZE;
+    }
+    for (var z = dots; z > 0; z--) {
+        if((x[z] == x[0]+x_dir) && (y[z] == y[0]+y_dir)){
+            return false;
+        }
+    }
+    return true;
+}
+
+function changeDirection() {
+    var dir = computeDirection();
+    var x_dir = DOT_SIZE;
+    var y_dir = DOT_SIZE;
+    if(dir[0] > 0){
+        dir[0] *= -1;
+    }else if(dir[0] < 0){
+        dir[0] *= -1;
+    }else if(dir[1] > 0){
+        dir[1] *= -1;
+    }else if(dir[1] < 0){
+        dir[1] *= -1;
+    }
+    
+    return true;
+}
+
+
 function move() {
+    var dir = computeDirection();
+    var safe = checkSafe(x, y, dir);
+    console.log("safe:", safe);
+    var dir = computeDirection();
+    if(safe==false){
+        var result = changeDirection();
+        console.log("result:", result);
+    }
+
     for (var z = dots; z > 0; z--) {
         x[z] = x[(z - 1)];
         y[z] = y[(z - 1)];
     }
-    var dir = computeDirection();
     if(dir[0] > 0){
         x[0] += DOT_SIZE;
     }else if(dir[0] < 0){
@@ -141,6 +188,7 @@ function move() {
     }else if(dir[1] < 0){
         y[0] -= DOT_SIZE;
     }
+    var dir = computeDirection();
     //let rand = Math.floor((Math.random() * 4) + 1);
     /*
     if (rand==1) {
