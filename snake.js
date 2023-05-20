@@ -84,6 +84,21 @@ function createSnake() {
     }
 }
 
+function getRandomColor() {
+    var letters = '0123456789ABCDEF';
+    var color = '#';
+    for (var i = 0; i < 6; i++) {
+      color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
+  }
+  
+  
+  
+  function setRandomColor() {
+    $("#colorpad").css("background-color", getRandomColor());
+  }
+
 function doDrawing() {
     
     ctx.clearRect(0, 0, C_WIDTH, C_HEIGHT);
@@ -97,7 +112,9 @@ function doDrawing() {
             if (z == 0) {
                 ctx.drawImage(head, x[z], y[z]);
             } else {
-                ctx.drawImage(ball, x[z], y[z]);
+                ctx.fillStyle = getRandomColor();
+                ctx.fillRect(x[z], y[z], 10, 10);
+                //ctx.drawImage(ball, x[z], y[z]);
             }
         }    
     } else {
