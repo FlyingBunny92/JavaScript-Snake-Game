@@ -73,7 +73,7 @@ function loadImages() {
     ball.src = 'dot.png'; 
     
     apple = new Image();
-    apple.src = 'apple.png'; 
+    apple.src = 'candy_piece.png'; 
 }
 
 function createSnake() {
