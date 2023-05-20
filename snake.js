@@ -14,6 +14,8 @@ var dots;
 var apple_x;
 var apple_y;
 
+var score = 0;
+
 var leftDirection = false;
 var rightDirection = true;
 var upDirection = false;
@@ -64,9 +66,7 @@ function loadImages() {
 }
 
 function createSnake() {
-
     dots = 3;
-
     for (var z = 0; z < dots; z++) {
         x[z] = 50 - z * 10;
         y[z] = 50;
@@ -76,7 +76,8 @@ function createSnake() {
 function checkApple() {
 
     if ((x[0] == apple_x) && (y[0] == apple_y)) {
-
+        score++;
+        document.getElementById('num').value = score;
         dots++;
         locateApple();
     }
@@ -115,9 +116,9 @@ function gameOver() {
 }
 
 function checkApple() {
-
     if ((x[0] == apple_x) && (y[0] == apple_y)) {
-
+        score++;
+        document.getElementById('num').value = new Number(score);
         dots++;
         locateApple();
     }
