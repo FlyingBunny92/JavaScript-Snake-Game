@@ -43,7 +43,6 @@ var x_history = new Array(HISTORY);
 var y_history = new Array(HISTORY);
 
 function init() {
-    
     canvas = document.getElementById('myCanvas');
     ctx = canvas.getContext('2d');
 
@@ -52,6 +51,18 @@ function init() {
     locateApple();
     setTimeout("gameCycle()", DELAY);
 }    
+
+function restart() {
+    canvas = document.getElementById('myCanvas');
+    ctx = canvas.getContext('2d');
+    score = 0;
+    document.getElementById('num').value = new Number(score);
+    loadImages();
+    createSnake();
+    locateApple();
+    setTimeout("gameCycle()", DELAY);
+}    
+
 
 function loadImages() {
     
@@ -72,16 +83,6 @@ function createSnake() {
         y[z] = 50;
     }
 }
-
-function checkApple() {
-
-    if ((x[0] == apple_x) && (y[0] == apple_y)) {
-        score++;
-        document.getElementById('num').value = score;
-        dots++;
-        locateApple();
-    }
-}    
 
 function doDrawing() {
     
@@ -119,6 +120,11 @@ function checkApple() {
     if ((x[0] == apple_x) && (y[0] == apple_y)) {
         score++;
         document.getElementById('num').value = new Number(score);
+        highscore = document.getElementById('highscore').value;
+        if(score > highscore){
+            highscore = score;
+            document.getElementById('highscore').value = new Number(highscore);
+        }
         dots++;
         locateApple();
     }
