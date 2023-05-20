@@ -22,6 +22,7 @@ var inGame = true;
 
 const DOT_SIZE = 10;
 const ALL_DOTS = 900;
+const HISTORY = 900*2;
 const MAX_RAND = 29;
 const DELAY = 140;
 const C_HEIGHT = 300;
@@ -35,6 +36,9 @@ const DOWN_KEY = 40;
 var x = new Array(ALL_DOTS);
 var y = new Array(ALL_DOTS);   
 
+
+var x_history = new Array(HISTORY);
+var y_history = new Array(HISTORY);
 
 function init() {
     
@@ -126,7 +130,7 @@ function computeDirection() {
     return [dir_x, dir_y];
 }
 
-function checkSafe(x, y) {
+function checkSafe(x, y, x_history, y_histoy) {
     var dir = computeDirection();
     var x_dir = DOT_SIZE;
     var y_dir = DOT_SIZE;
@@ -139,8 +143,8 @@ function checkSafe(x, y) {
     }else if(dir[1] < 0){
         y_dir = -DOT_SIZE;
     }
-    for (var z = dots; z > 0; z--) {
-        if((x[z] == x[0]+x_dir) && (y[z] == y[0]+y_dir)){
+    for (var z = 0; z > x_history.length; z++) {
+        if((x_history[z] == x[0]+x_dir) && (y_histoy[z] == y[0]+y_dir)){
             return false;
         }
     }
@@ -149,8 +153,6 @@ function checkSafe(x, y) {
 
 function changeDirection() {
     var dir = computeDirection();
-    var x_dir = DOT_SIZE;
-    var y_dir = DOT_SIZE;
     if(dir[0] > 0){
         dir[0] *= -1;
     }else if(dir[0] < 0){
@@ -160,10 +162,14 @@ function changeDirection() {
     }else if(dir[1] < 0){
         dir[1] *= -1;
     }
-    
     return true;
 }
 
+function shift_elements_in_array(arr) {
+    for (var z = 0; z > arr.length-1; z++) {
+        arr[z+1] = arr[z];
+    }
+}
 
 function move() {
     var dir = computeDirection();
@@ -174,39 +180,26 @@ function move() {
         var result = changeDirection();
         console.log("result:", result);
     }
-
+    shift_elements_in_array(x_history);
+    shift_elements_in_array(y_history);
     for (var z = dots; z > 0; z--) {
         x[z] = x[(z - 1)];
         y[z] = y[(z - 1)];
     }
     if(dir[0] > 0){
         x[0] += DOT_SIZE;
+        x_history[0] += DOT_SIZE;
     }else if(dir[0] < 0){
         x[0] -= DOT_SIZE;
+        x_history[0] -= DOT_SIZE;
     }else if(dir[1] > 0){
         y[0] += DOT_SIZE;
+        y_history[0] += DOT_SIZE;
     }else if(dir[1] < 0){
         y[0] -= DOT_SIZE;
+        y_history[0] -= DOT_SIZE;
     }
     var dir = computeDirection();
-    //let rand = Math.floor((Math.random() * 4) + 1);
-    /*
-    if (rand==1) {
-        x[0] -= DOT_SIZE;
-    }
-
-    if (rand==2) {
-        x[0] += DOT_SIZE;
-    }
-
-    if (rand==3) {
-        y[0] -= DOT_SIZE;
-    }
-
-    if (rand==4) {
-        y[0] += DOT_SIZE;
-    }
-    */
 }    
 
 function checkCollision() {
