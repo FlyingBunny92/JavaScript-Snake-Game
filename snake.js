@@ -50,8 +50,10 @@ function init() {
     ctx = canvas.getContext('2d');
     score = 0;
     getHighscore();
+    getAvgscore();
     document.getElementById('num').value = new Number(score);
     document.getElementById('highscore').value = new Number(highscore);
+    document.getElementById('avgscore').value = new Number(avgscore);
     loadImages();
     createSnake();
     locateApple();
@@ -63,8 +65,10 @@ function restart() {
     ctx = canvas.getContext('2d');
     score = 0;
     getHighscore();
+    getAvgscore();
     document.getElementById('num').value = new Number(score);
     document.getElementById('highscore').value = new Number(highscore);
+    document.getElementById('avgscore').value = new Number(avgscore);
     loadImages();
     createSnake();
     locateApple();
@@ -77,6 +81,18 @@ function getHighscore() {
     }
     if(score > highscore){
         highscore = score;
+    }
+}
+
+function getAvgscore() {
+    // localStorage.setItem("avgscore", 0);
+    if (localStorage.getItem("avgscore") != null) {
+        avgscore = parseInt(localStorage.getItem("avgscore"));
+    }else{
+        localStorage.setItem("avgscore", 0);
+    }
+    if(score > avgscore){
+        avgscore = score;
     }
 }
 
@@ -144,6 +160,7 @@ function gameOver() {
     // localStorage.removeItem('score_sum');
     // localStorage.removeItem('runs');
     // localStorage.removeItem('highscore');
+    // localStorage.removeItem('avgscore');
     if (localStorage.getItem("highscore") != null) {
         highscore = parseInt(localStorage.getItem("highscore"));
     }
@@ -166,10 +183,10 @@ function gameOver() {
     runs += 1;
     localStorage.setItem("runs", runs);
     console.log("runs:", runs);
-    var avg_score = score_sum / runs;
-    console.log("avg_score:", avg_score);
-    localStorage.removeItem('avg_score');
-    localStorage.setItem("avg_score", avg_score);
+    avgscore = score_sum / runs;
+    console.log("avgscore:", avgscore);
+    localStorage.removeItem('avgscore');
+    localStorage.setItem("avgscore", avgscore);
     ctx.fillStyle = 'white';
     ctx.textBaseline = 'middle'; 
     ctx.textAlign = 'center'; 
