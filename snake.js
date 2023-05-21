@@ -17,6 +17,7 @@ var apple_y;
 var score_sum = 0;
 var runs = 0;
 var score = 0;
+var highscore = 0;
 
 var leftDirection = false;
 var rightDirection = true;
@@ -47,7 +48,10 @@ var y_history = new Array(HISTORY);
 function init() {
     canvas = document.getElementById('myCanvas');
     ctx = canvas.getContext('2d');
-
+    score = 0;
+    getHighscore();
+    document.getElementById('num').value = new Number(score);
+    document.getElementById('highscore').value = new Number(highscore);
     loadImages();
     createSnake();
     locateApple();
@@ -58,12 +62,23 @@ function restart() {
     canvas = document.getElementById('myCanvas');
     ctx = canvas.getContext('2d');
     score = 0;
+    getHighscore();
     document.getElementById('num').value = new Number(score);
+    document.getElementById('highscore').value = new Number(highscore);
     loadImages();
     createSnake();
     locateApple();
     setTimeout("gameCycle()", DELAY);
-}    
+}
+
+function getHighscore() {
+    if (localStorage.getItem("highscore") != null) {
+        highscore = parseInt(localStorage.getItem("highscore"));
+    }
+    if(score > highscore){
+        highscore = score;
+    }
+}
 
 
 function loadImages() {
@@ -128,6 +143,14 @@ function doDrawing() {
 function gameOver() {
     // localStorage.removeItem('score_sum');
     // localStorage.removeItem('runs');
+    if (localStorage.getItem("highscore") != null) {
+        highscore = parseInt(localStorage.getItem("highscore"));
+    }
+    if(score > highscore){
+        highscore = score;
+    }
+    console.log("highscore:", highscore)
+    localStorage.setItem("highscore", highscore);
     var score_sum = 0;
     if (localStorage.getItem("score_sum") != null) {
         score_sum = parseInt(localStorage.getItem("score_sum"));
@@ -152,6 +175,7 @@ function gameOver() {
     ctx.font = 'normal bold 18px serif';
     
     ctx.fillText('Game over', C_WIDTH/2, C_HEIGHT/2);
+    // location.reload();
 }
 
 function checkApple() {
