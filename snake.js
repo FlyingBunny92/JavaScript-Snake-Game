@@ -14,6 +14,8 @@ var dots;
 var apple_x;
 var apple_y;
 
+var score_sum = 0;
+var runs = 0;
 var score = 0;
 
 var leftDirection = false;
@@ -91,13 +93,13 @@ function getRandomColor() {
       color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
-  }
+}
   
   
   
-  function setRandomColor() {
+function setRandomColor() {
     $("#colorpad").css("background-color", getRandomColor());
-  }
+}
 
 function doDrawing() {
     
@@ -124,7 +126,26 @@ function doDrawing() {
 }
 
 function gameOver() {
-    
+    // localStorage.removeItem('score_sum');
+    // localStorage.removeItem('runs');
+    var score_sum = 0;
+    if (localStorage.getItem("score_sum") != null) {
+        score_sum = parseInt(localStorage.getItem("score_sum"));
+    }
+    score_sum += score;
+    console.log("score_sum:", score_sum)
+    localStorage.setItem("score_sum", score_sum);
+    var runs = 0;
+    if (localStorage.getItem("runs") != null) {
+        runs = parseInt(localStorage.getItem("runs"));
+    }
+    runs += 1;
+    localStorage.setItem("runs", runs);
+    console.log("runs:", runs);
+    var avg_score = score_sum / runs;
+    console.log("avg_score:", avg_score);
+    localStorage.removeItem('avg_score');
+    localStorage.setItem("avg_score", avg_score);
     ctx.fillStyle = 'white';
     ctx.textBaseline = 'middle'; 
     ctx.textAlign = 'center'; 
@@ -198,7 +219,6 @@ function shift_elements_in_array(arr) {
 function move() {
     var dir = computeDirection();
     var safe = checkSafe(x, y, dir);
-    console.log("safe:", safe);
     var dir = computeDirection();
     if(safe==false){
         var result = changeDirection();
