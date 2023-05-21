@@ -143,6 +143,7 @@ function doDrawing() {
 function gameOver() {
     // localStorage.removeItem('score_sum');
     // localStorage.removeItem('runs');
+    // localStorage.removeItem('highscore');
     if (localStorage.getItem("highscore") != null) {
         highscore = parseInt(localStorage.getItem("highscore"));
     }
@@ -220,6 +221,87 @@ function checkSafe(x, y, x_history, y_histoy) {
     return true;
 }
 
+
+function searchUp() {
+    var xpos = x[0];
+    var ypos = y[0];
+    while(ypos < C_HEIGHT){
+        ypos += DOT_SIZE;
+        for(var i = 0; i < y_history; i++){
+            for(var j = 0; j < x_history; j++){
+                if((y_history[i]==ypos) && (x_history[i]==xpos)){
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+function searchDown() {
+    var xpos = x[0];
+    var ypos = y[0];
+    while(ypos > 0){
+        ypos -= DOT_SIZE;
+        for(var i = 0; i < y_history; i++){
+            for(var j = 0; j < x_history; j++){
+                if((y_history[i]==ypos) && (x_history[i]==xpos)){
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+function searchLeft() {
+    var xpos = x[0];
+    var ypos = y[0];
+    while(xpos > 0){
+        xpos -= DOT_SIZE;
+        for(var i = 0; i < y_history; i++){
+            for(var j = 0; j < x_history; j++){
+                if((y_history[i]==ypos) && (x_history[i]==xpos)){
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+function searchRight() {
+    var xpos = x[0];
+    var ypos = y[0];
+    while(xpos < C_WIDTH){
+        xpos += DOT_SIZE;
+        for(var i = 0; i < y_history; i++){
+            for(var j = 0; j < x_history; j++){
+                if((y_history[i]==ypos) && (x_history[i]==xpos)){
+                    return false;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+
+function changeDirectionWithSearch() {
+    var dir = computeDirection();
+    if(searchLeft()){
+        dir[0] *= -1;
+    }else if(searchRight()){
+        dir[0] *= -1;
+    }
+    if(searchUp()){
+        dir[1] *= -1;
+    }else if(searchDown()){
+        dir[1] *= -1;
+    }
+    return true;
+}
+
 function changeDirection() {
     var dir = computeDirection();
     if(dir[0] > 0){
@@ -245,7 +327,7 @@ function move() {
     var safe = checkSafe(x, y, dir);
     var dir = computeDirection();
     if(safe==false){
-        var result = changeDirection();
+        var result = changeDirectionWithSearch();
         console.log("result:", result);
     }
     shift_elements_in_array(x_history);
