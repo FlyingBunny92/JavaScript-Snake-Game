@@ -346,7 +346,8 @@ function shift_elements_in_array(arr) {
 }
 
 
-function slide(dir) {
+function slide() {
+    var dir = computeDirection();
     for (var z = dots; z > 0; z--) {
         x[z] = x[(z - 1)];
         y[z] = y[(z - 1)];
@@ -365,10 +366,15 @@ function slide(dir) {
     if(x[0] > C_WIDTH-10){
         y_sign = -1
     }
-    x[0] += DOT_SIZE*x_sign;
-    x_history[0] += DOT_SIZE*x_sign;
-    y[0] += DOT_SIZE*y_sign;
-    y_history[0] += DOT_SIZE*y_sign;
+    if(dir[0] == 0){
+        x[0] += DOT_SIZE*x_sign;
+        x_history[0] += DOT_SIZE*x_sign;
+    }
+    if(dir[1] == 0){
+        y[0] += DOT_SIZE*y_sign;
+        y_history[0] += DOT_SIZE*y_sign;
+    }
+
 }
 
 function slither(dir) {
@@ -400,10 +406,8 @@ function move() {
     var safe = checkSafe(x, y, dir);
     console.log("dir:");
     console.log(dir);
-    if(safe==false){
-        var result = changeDirectionWithSearch();
-        console.log("result:", result);
-    }
+    var result = changeDirectionWithSearch();
+    console.log("result:", result);
     shift_elements_in_array(x_history);
     shift_elements_in_array(y_history);
     slither(dir);
