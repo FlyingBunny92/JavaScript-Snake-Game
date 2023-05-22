@@ -249,12 +249,12 @@ function searchUp() {
         for(var i = 0; i < y.length; i++){
             for(var j = 0; j < x.length; j++){
                 if((y[i]==ypos) && (x[j]==xpos)){
-                    return false;
+                    return true;
                 }
             }
         }
     }
-    return true;
+    return false;
 }
 
 function searchDown() {
@@ -265,12 +265,12 @@ function searchDown() {
         for(var i = 0; i < y.length; i++){
             for(var j = 0; j < x.length; j++){
                 if((y[i]==ypos) && (x[j]==xpos)){
-                    return false;
+                    return true;
                 }
             }
         }
     }
-    return true;
+    return false;
 }
 
 function searchLeft() {
@@ -281,12 +281,12 @@ function searchLeft() {
         for(var i = 0; i < y.legnth; i++){
             for(var j = 0; j < x.length; j++){
                 if((y[i]==ypos) && (x[j]==xpos)){
-                    return false;
+                    return true;
                 }
             }
         }
     }
-    return true;
+    return false;
 }
 
 function searchRight() {
@@ -297,12 +297,12 @@ function searchRight() {
         for(var i = 0; i < y.length; i++){
             for(var j = 0; j < x.length; j++){
                 if((y[i]==ypos) && (x[j]==xpos)){
-                    return false;
+                    return true;
                 }
             }
         }
     }
-    return true;
+    return false;
 }
 
 
@@ -399,13 +399,12 @@ function slither(dir) {
 
 function move() {
     var dir = computeDirection();
+    console.log("dir:");
+    console.log(dir);
     if(newApple){
         slide(dir);
         newApple = false;
     }
-    var safe = checkSafe(x, y, dir);
-    console.log("dir:");
-    console.log(dir);
     var result = changeDirectionWithSearch();
     console.log("result:", result);
     shift_elements_in_array(x_history);
