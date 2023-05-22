@@ -19,6 +19,8 @@ var runs = 0;
 var score = 0;
 var highscore = 0;
 
+var newApple = false;
+
 var leftDirection = false;
 var rightDirection = true;
 var upDirection = false;
@@ -206,10 +208,10 @@ function checkApple() {
             document.getElementById('highscore').value = new Number(highscore);
         }
         dots++;
+        newApple = true;
         locateApple();
     }
 }
-
 
 function computeDirection() {
     dir_x = apple_x - x[0];
@@ -244,9 +246,9 @@ function searchUp() {
     var ypos = y[0];
     while(ypos < C_HEIGHT){
         ypos += DOT_SIZE;
-        for(var i = 0; i < y_history; i++){
-            for(var j = 0; j < x_history; j++){
-                if((y_history[i]==ypos) && (x_history[i]==xpos)){
+        for(var i = 0; i < y.length; i++){
+            for(var j = 0; j < x.length; j++){
+                if((y[i]==ypos) && (x[j]==xpos)){
                     return false;
                 }
             }
@@ -260,9 +262,9 @@ function searchDown() {
     var ypos = y[0];
     while(ypos > 0){
         ypos -= DOT_SIZE;
-        for(var i = 0; i < y_history; i++){
-            for(var j = 0; j < x_history; j++){
-                if((y_history[i]==ypos) && (x_history[i]==xpos)){
+        for(var i = 0; i < y.length; i++){
+            for(var j = 0; j < x.length; j++){
+                if((y[i]==ypos) && (x[j]==xpos)){
                     return false;
                 }
             }
@@ -276,9 +278,9 @@ function searchLeft() {
     var ypos = y[0];
     while(xpos > 0){
         xpos -= DOT_SIZE;
-        for(var i = 0; i < y_history; i++){
-            for(var j = 0; j < x_history; j++){
-                if((y_history[i]==ypos) && (x_history[i]==xpos)){
+        for(var i = 0; i < y.legnth; i++){
+            for(var j = 0; j < x.length; j++){
+                if((y[i]==ypos) && (x[j]==xpos)){
                     return false;
                 }
             }
@@ -292,9 +294,9 @@ function searchRight() {
     var ypos = y[0];
     while(xpos < C_WIDTH){
         xpos += DOT_SIZE;
-        for(var i = 0; i < y_history; i++){
-            for(var j = 0; j < x_history; j++){
-                if((y_history[i]==ypos) && (x_history[i]==xpos)){
+        for(var i = 0; i < y.length; i++){
+            for(var j = 0; j < x.length; j++){
+                if((y[i]==ypos) && (x[j]==xpos)){
                     return false;
                 }
             }
@@ -306,14 +308,18 @@ function searchRight() {
 
 function changeDirectionWithSearch() {
     var dir = computeDirection();
-    if(searchLeft()){
+    if((dir[0] < 0) && searchLeft()){
         dir[0] *= -1;
-    }else if(searchRight()){
-        dir[0] *= -1;
-    }
-    if(searchUp()){
         dir[1] *= -1;
-    }else if(searchDown()){
+    }else if((dir[0] > 0) && searchRight()){
+        dir[0] *= -1;
+        dir[1] *= -1;
+    }
+    if((dir[1] > 0) && searchUp()){
+        dir[0] *= -1;
+        dir[1] *= -1;
+    }else if((dir[1] < 0) && searchDown()){
+        dir[0] *= -1;
         dir[1] *= -1;
     }
     return true;
@@ -339,16 +345,33 @@ function shift_elements_in_array(arr) {
     }
 }
 
-function move() {
-    var dir = computeDirection();
-    var safe = checkSafe(x, y, dir);
-    var dir = computeDirection();
-    if(safe==false){
-        var result = changeDirectionWithSearch();
-        console.log("result:", result);
+
+function slide(dir) {
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
     }
-    shift_elements_in_array(x_history);
-    shift_elements_in_array(y_history);
+    var x_sign = 1;
+    var y_sign = 1;
+    if(x[0] < 5){
+        x_sign = 1
+    }
+    if(x[0] > C_WIDTH-10){
+        x_sign = -1
+    }
+    if(y[0] < 5){
+        y_sign = 1
+    }
+    if(x[0] > C_WIDTH-10){
+        y_sign = -1
+    }
+    x[0] += DOT_SIZE*x_sign;
+    x_history[0] += DOT_SIZE*x_sign;
+    y[0] += DOT_SIZE*y_sign;
+    y_history[0] += DOT_SIZE*y_sign;
+}
+
+function slither(dir) {
     for (var z = dots; z > 0; z--) {
         x[z] = x[(z - 1)];
         y[z] = y[(z - 1)];
@@ -366,6 +389,24 @@ function move() {
         y[0] -= DOT_SIZE;
         y_history[0] -= DOT_SIZE;
     }
+}
+
+function move() {
+    var dir = computeDirection();
+    if(newApple){
+        slide(dir);
+        newApple = false;
+    }
+    var safe = checkSafe(x, y, dir);
+    console.log("dir:");
+    console.log(dir);
+    if(safe==false){
+        var result = changeDirectionWithSearch();
+        console.log("result:", result);
+    }
+    shift_elements_in_array(x_history);
+    shift_elements_in_array(y_history);
+    slither(dir);
     var dir = computeDirection();
 }    
 
