@@ -48,6 +48,9 @@ var y = new Array(ALL_DOTS);
 var x_history = new Array(HISTORY);
 var y_history = new Array(HISTORY);
 
+
+
+
 function init() {
     canvas = document.getElementById('myCanvas');
     ctx = canvas.getContext('2d');
@@ -251,80 +254,177 @@ function drawPath(path) {
     }
 }
 
-function searchPath(path, x_delta, y_delta, complete) {
-    ctx.fillStyle = "#FFC0CB";
-    ctx.fillRect(searchPath, y_delta, 10, 10);
-    setTimeout("searchPath(path, x_delta, y_delta, complete)", DELAY);
-    if(complete){
-        return [path, complete];
-    }
-    if(path.length > 500){
-        // drawPath(path);
-        exit(0);
-    }
-    doDrawingWithPath(path);
-    console.log(path.length);
-    console.log(complete);
-    console.log(path);
-    if ((x[0]+x_delta == apple_x) && (y[0]+y_delta == apple_y)) {
-        return [path, true];
-    }
-    var dir = computeDirection();
-    if((x_delta+y_delta) % 2 == 0){
-        for (var z = dots; z > 0; z--) {
-            if ((z > 4) && (x[0]+x_delta == x[z]) && (y[0]+y_delta == y[z])) {
-                dir[0] *= -1;
-                dir[1] *= -1;
-                return [path.pop(), false];
-            }
-        }
-        if((dir[0] > 0) && (x[0]+x_delta+1 < C_WIDTH)){
-            path += '1,0,';
-            res = searchPath(path, x_delta+1, y_delta, complete);
-            path = res[0];
-            complete = res[1];
-            if(complete){
-                return [path, complete];
-            }
-        }
-    }
-    if((dir[0] < 0) && (x[0]+x_delta-1 > 0)){
-        path += '-1,0,';
-        res = searchPath(path, x_delta-1, y_delta, complete);
-        path = res[0];
-        complete = res[1];
-        if(complete){
-            return [path, complete];
-        }
+
+
+class Node {
+    constructor()
+    {
+        this.parent = null;
+        this.position = null;
+
+
+        this.g = 0;
+        this.h = 0;
+        this.f = 0;
     }
 
-    if((dir[1] > 0) && (y[0]+y_delta+1 < C_HEIGHT)){
-        path += '0,1,';
-        res = searchPath(path, x_delta, y_delta+1, complete);
-        path = res[0];
-        complete = res[1];
-        if(complete){
-            return [path, complete];
-        }
+    setParent(p){
+        this.parent = p;
     }
-    if((dir[1] < 0) && (y[0]+y_delta-1 > 0)){
-        path += '0,-1,';
-        res = searchPath(path, x_delta, y_delta-1, complete);
-        path = res[0];
-        complete = res[1];
-        if(complete){
-            return [path, complete];
-        }
+    setPosition(p){
+        this.position = p;
     }
-    return [path, complete];
+
+}
+
+
+
+
+
+function aStar(start, end) {
+
+    var start_node = new Node();
+    start_node.position = start;
+    console.log("start_node.position:");
+    console.log(start_node.position);
+    start_node.g = start_node.h = start_node.f = 0;
+    end_node = new Node();
+    end_node.position = end;
+    end_node.g = end_node.h = end_node.f = 0;
+
+
+    let open_list = []
+    let closed_list = []
+
+    open_list.push(start_node);
+
+
+    while (open_list.length > 0){
+        console.log("open_list.length:");
+        console.log(open_list.length);
+
+        current_node = open_list[0]
+        current_index = 0
+        for(var i = 0; i < open_list.length; i++){
+            if(open_list[i] < current_node){
+                current_node = open_list[i];
+                current_index = i;
+            }
+        }
+        open_list.pop(current_index);
+        closed_list.push(current_node);
+        console.log("closed_list.push(current_node);");
+        console.log(current_node.position);
+        console.log(end_node.position);
+        if (current_node.position == end_node.position){
+            path = []
+            current = current_node;
+            while (current != null){
+                path.push(current.position);
+                current = current.parent;
+                console.log("return path;");
+                return path;
+            }
+        }
+
+        var children = []
+        console.log("children:");
+        var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
+        for(var i = 0; i < new_positions.length; i++){
+            var new_position = new_positions[i];
+            console.log("new_position:");
+            console.log(new_position);
+
+            let node_position = [current_node.position[0] + new_position[0], current_node.position[1] + new_position[1]];
+            console.log("node_position:");
+            console.log(node_position);
+
+            // Off the board
+            let onBoard = true;
+            if( (node_position[0] >= C_WIDTH) || (node_position[0] <= 0) || (node_position[1] >= C_WIDTH) || (node_position[1] <= 0)) {
+                console.log("offBoard = false;");
+                onBoard = false;
+            }
+
+            // Hit its own tail
+            let noCollision = true;
+            for (var z = dots; z > 0; z--) {
+                if ((x[0] == node_position[0]) && (y[0] == node_position[0])) {
+                    console.log("noCollision = false;");
+                    noCollision = false;
+                }
+            }
+            console.log("noCollision:", noCollision);
+            console.log("onBoard:", onBoard);
+            if(noCollision && onBoard){
+                console.log("if(noCollision && onBoard)");
+                // Create the new node
+                console.log("node_position:");
+                console.log(node_position);
+                console.log("current_node:");
+                console.log(current_node);
+                var new_node = new Node();
+                new_node.position = node_position;
+                new_node.parent = current_node;
+                new_node.setParent(current_node);
+                new_node.setPosition(node_position);
+                console.log("new_node.current_node:", new_node.current_node);
+                console.log("new_node.node_position:", new_node.node_position);
+
+                // Push the node
+                children.push(new_node);
+                console.log("children.length:", children.length);
+            }
+        }
+
+        for(child in children){
+            console.log("child:");
+            console.log(child);
+
+            var alreadyInClosedList = false;
+            for(closed_child in closed_list){
+                if(child == closed_child){
+                    alreadyInClosedList = true;
+                    break;
+                }
+            }
+            if(alreadyInClosedList){
+                continue;
+            }
+
+            child.g = current_node.g + 1;
+            console.log("child.position:", child.position);
+            console.log("end_node.position:", end_node.position);
+            var p1 = Math.pow(child.position[0] - end_node.position[0], 2);
+            var p2 = Math.pow(child.position[1] - end_node.position[1], 2);
+            child.h = p1 + p2;
+            child.f = child.g + child.h;
+
+            var alreadyInOpenList = false;
+            for(open_node in open_list){
+                if( (child == open_node) && (child.g > open_node.g) ){
+                    alreadyInOpenList = true;
+                }
+            }
+
+            if(!alreadyInOpenList){
+                open_list.push(child);
+            }
+            
+        }
+
+        // var g = abs(x[0]-x_delta);
+        // var h = Math.pow((apple_x-x_delta), 2) + Math.pow((apple_y-y_delta), 2);
+        // var f = g + h;
+    }
+
 }
 
 function findPath() {
-    res = searchPath('', 0, 0, false);
-    path = res[0];
-    complete = res[1];
+    var path = aStar([x[0], y[0]], [apple_x, apple_y]);
     console.log("path:");
     console.log(path);
+    exit(0);
     return path;
 }
 
