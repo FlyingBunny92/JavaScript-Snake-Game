@@ -20,6 +20,7 @@ var score = 0;
 var highscore = 0;
 
 var newApple = false;
+var path = [];
 
 var leftDirection = false;
 var rightDirection = true;
@@ -59,6 +60,7 @@ function init() {
     loadImages();
     createSnake();
     locateApple();
+    findPath();
     setTimeout("gameCycle()", DELAY);
 }    
 
@@ -74,7 +76,19 @@ function restart() {
     loadImages();
     createSnake();
     locateApple();
+    findPath();
     setTimeout("gameCycle()", DELAY);
+}
+
+function clear() {
+    console.log("function clear()")
+    // localStorage.removeItem('score_sum');
+    // localStorage.removeItem('runs');
+    // localStorage.removeItem('highscore');
+    // localStorage.removeItem('avgscore');
+    document.getElementById('num').value = new Number(0);
+    document.getElementById('highscore').value = new Number(0);
+    document.getElementById('avgscore').value = new Number(0);
 }
 
 function getHighscore() {
@@ -100,7 +114,6 @@ function getAvgscore() {
 
 
 function loadImages() {
-    
     head = new Image();
     head.src = 'head.png';    
     
@@ -128,8 +141,6 @@ function getRandomColor() {
     return color;
 }
   
-  
-  
 function setRandomColor() {
     $("#colorpad").css("background-color", getRandomColor());
 }
@@ -155,6 +166,7 @@ function doDrawing() {
     } else {
 
         gameOver();
+
     }        
 }
 
@@ -198,6 +210,125 @@ function gameOver() {
     // location.reload();
 }
 
+function doDrawingWithPath(path) {
+    ctx.clearRect(0, 0, C_WIDTH, C_HEIGHT);
+    if (inGame) {
+        ctx.drawImage(apple, apple_x, apple_y);
+        var x_delta = x[0];
+        var y_delta = y[0];
+        var path_arr = path.split(",");
+        console.log(path_arr);
+        for(var i = 0; i < path_arr.length; i+=2){
+            x_delta += path_arr[i]; 
+            y_delta += path_arr[i+1]; 
+            ctx.fillStyle = "#FFC0CB";
+            ctx.fillRect(x_delta, y_delta, 2, 2);
+        }
+        for (var z = 0; z < dots; z++) {
+            if (z == 0) {
+                ctx.drawImage(head, x[z], y[z]);
+            } else {
+                ctx.fillStyle = getRandomColor();
+                ctx.fillRect(x[z], y[z], 10, 10);
+                //ctx.drawImage(ball, x[z], y[z]);
+            }
+        }    
+    } else {
+        gameOver();
+
+    }        
+}
+
+function drawPath(path) {
+    console.log("function drawPath(path)");
+    var x_delta = x[0];
+    var y_delta = y[0];
+    for(var i = 0; i < path.length; i++){
+        x_delta += path[i]; 
+        y_delta += path[i+1]; 
+        ctx.fillStyle = "#FFC0CB";
+        ctx.fillRect(x_delta, y_delta, 10, 10);
+    }
+}
+
+function searchPath(path, x_delta, y_delta, complete) {
+    ctx.fillStyle = "#FFC0CB";
+    ctx.fillRect(searchPath, y_delta, 10, 10);
+    setTimeout("searchPath(path, x_delta, y_delta, complete)", DELAY);
+    if(complete){
+        return [path, complete];
+    }
+    if(path.length > 500){
+        // drawPath(path);
+        exit(0);
+    }
+    doDrawingWithPath(path);
+    console.log(path.length);
+    console.log(complete);
+    console.log(path);
+    if ((x[0]+x_delta == apple_x) && (y[0]+y_delta == apple_y)) {
+        return [path, true];
+    }
+    var dir = computeDirection();
+    if((x_delta+y_delta) % 2 == 0){
+        for (var z = dots; z > 0; z--) {
+            if ((z > 4) && (x[0]+x_delta == x[z]) && (y[0]+y_delta == y[z])) {
+                dir[0] *= -1;
+                dir[1] *= -1;
+                return [path.pop(), false];
+            }
+        }
+        if((dir[0] > 0) && (x[0]+x_delta+1 < C_WIDTH)){
+            path += '1,0,';
+            res = searchPath(path, x_delta+1, y_delta, complete);
+            path = res[0];
+            complete = res[1];
+            if(complete){
+                return [path, complete];
+            }
+        }
+    }
+    if((dir[0] < 0) && (x[0]+x_delta-1 > 0)){
+        path += '-1,0,';
+        res = searchPath(path, x_delta-1, y_delta, complete);
+        path = res[0];
+        complete = res[1];
+        if(complete){
+            return [path, complete];
+        }
+    }
+
+    if((dir[1] > 0) && (y[0]+y_delta+1 < C_HEIGHT)){
+        path += '0,1,';
+        res = searchPath(path, x_delta, y_delta+1, complete);
+        path = res[0];
+        complete = res[1];
+        if(complete){
+            return [path, complete];
+        }
+    }
+    if((dir[1] < 0) && (y[0]+y_delta-1 > 0)){
+        path += '0,-1,';
+        res = searchPath(path, x_delta, y_delta-1, complete);
+        path = res[0];
+        complete = res[1];
+        if(complete){
+            return [path, complete];
+        }
+    }
+    return [path, complete];
+}
+
+function findPath() {
+    res = searchPath('', 0, 0, false);
+    path = res[0];
+    complete = res[1];
+    console.log("path:");
+    console.log(path);
+    return path;
+}
+
+
 function checkApple() {
     if ((x[0] == apple_x) && (y[0] == apple_y)) {
         score++;
@@ -210,6 +341,7 @@ function checkApple() {
         dots++;
         newApple = true;
         locateApple();
+        findPath();
     }
 }
 
@@ -306,8 +438,7 @@ function searchRight() {
 }
 
 
-function changeDirectionWithSearch() {
-    var dir = computeDirection();
+function changeDirectionWithSearch(dir) {
     if((dir[0] < 0) && searchLeft()){
         dir[0] *= -1;
         dir[1] *= -1;
@@ -322,7 +453,7 @@ function changeDirectionWithSearch() {
         dir[0] *= -1;
         dir[1] *= -1;
     }
-    return true;
+    return dir;
 }
 
 function changeDirection() {
@@ -397,26 +528,29 @@ function slither(dir) {
     }
 }
 
+function traverse(path) {
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
+    }
+    x[0] += path[0][0];
+    y[0] += path[0][1];
+    path.shift();
+}
+
 function move() {
     var dir = computeDirection();
-    console.log("dir:");
-    console.log(dir);
     if(newApple){
         slide(dir);
         newApple = false;
     }
-    var result = changeDirectionWithSearch();
-    console.log("result:", result);
     shift_elements_in_array(x_history);
     shift_elements_in_array(y_history);
-    slither(dir);
-    var dir = computeDirection();
+    traverse(path);
 }    
 
 function checkCollision() {
-
     for (var z = dots; z > 0; z--) {
-
         if ((z > 4) && (x[0] == x[z]) && (y[0] == y[z])) {
             inGame = false;
         }
@@ -440,7 +574,6 @@ function checkCollision() {
 }
 
 function locateApple() {
-
     var r = Math.floor(Math.random() * MAX_RAND);
     apple_x = r * DOT_SIZE;
 
@@ -449,9 +582,7 @@ function locateApple() {
 }    
 
 function gameCycle() {
-    
     if (inGame) {
-
         checkApple();
         checkCollision();
         move();
@@ -460,11 +591,9 @@ function gameCycle() {
     }
 }
 
-onkeydown = function(e) {
-    
+onkeydown = function(e) {    
     var key = e.keyCode;
 
-    
     if ((key == LEFT_KEY) && (!rightDirection)) {
         
         leftDirection = true;
