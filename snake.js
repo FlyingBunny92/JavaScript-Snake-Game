@@ -257,10 +257,10 @@ function drawPath(path) {
 
 
 class Node {
-    constructor()
+    constructor(parent, position)
     {
-        this.parent = null;
-        this.position = null;
+        this.parent = parent;
+        this.position = position;
 
 
         this.g = 0;
@@ -283,12 +283,12 @@ class Node {
 
 function aStar(start, end) {
 
-    var start_node = new Node();
+    var start_node = new Node(null, start);
     start_node.position = start;
     console.log("start_node.position:");
     console.log(start_node.position);
     start_node.g = start_node.h = start_node.f = 0;
-    end_node = new Node();
+    var end_node = new Node(null, end);
     end_node.position = end;
     end_node.g = end_node.h = end_node.f = 0;
 
@@ -363,13 +363,18 @@ function aStar(start, end) {
                 console.log(node_position);
                 console.log("current_node:");
                 console.log(current_node);
-                var new_node = new Node();
+                var new_node = new Node(current_node, node_position);
                 new_node.position = node_position;
                 new_node.parent = current_node;
-                new_node.setParent(current_node);
-                new_node.setPosition(node_position);
-                console.log("new_node.current_node:", new_node.current_node);
-                console.log("new_node.node_position:", new_node.node_position);
+                console.log("new_node:");
+                console.log(new_node);
+                // new_node.setParent(current_node);
+                // new_node.setPosition(node_position);
+                console.log("new_node.parent:", new_node.parent);
+                console.log("new_node.position:", new_node.position);
+                if(new_node.position == undefined){
+                    exit(0);
+                }
 
                 // Push the node
                 children.push(new_node);
@@ -377,7 +382,8 @@ function aStar(start, end) {
             }
         }
 
-        for(child in children){
+        for(var m = 0; m < children.length; m++){
+            var child = children[m];
             console.log("child:");
             console.log(child);
 
