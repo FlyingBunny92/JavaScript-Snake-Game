@@ -447,6 +447,22 @@ function findPath() {
     return path.reverse();
 }
 
+function createNewApple() {
+    score++;
+    document.getElementById('num').value = new Number(score);
+    highscore = document.getElementById('highscore').value;
+    if(score > highscore){
+        highscore = score;
+        document.getElementById('highscore').value = new Number(highscore);
+    }
+    dots++;
+    newApple = true;
+    locateApple();
+    path = findPath();
+    pathIndex = 0;
+    setTimeout("gameCycle()", DELAY);
+}
+
 
 function checkApple() {
     if ((x[0] == apple_x) && (y[0] == apple_y)) {
@@ -462,6 +478,7 @@ function checkApple() {
         locateApple();
         path = findPath();
         pathIndex = 0;
+        setTimeout("gameCycle()", DELAY);
     }
 }
 
@@ -659,6 +676,9 @@ function traverse(path) {
 }
 
 function move() {
+    if(path_index > path.length-1){
+        createNewApple();
+    }
     if(newApple){
         newApple = false;
     }
