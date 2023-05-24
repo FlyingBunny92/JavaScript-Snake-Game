@@ -33,7 +33,8 @@ const DOT_SIZE = 10;
 const ALL_DOTS = 900;
 const HISTORY = 900*2;
 const MAX_RAND = 29;
-const DELAY = 140;
+// const DELAY = 140;
+const DELAY = 50;
 const C_HEIGHT = 300;
 const C_WIDTH = 300;    
 
@@ -87,7 +88,6 @@ function restart() {
 }
 
 function clear() {
-    console.log("function clear()")
     // localStorage.removeItem('score_sum');
     // localStorage.removeItem('runs');
     // localStorage.removeItem('highscore');
@@ -164,7 +164,9 @@ function doDrawing() {
             if (z == 0) {
                 ctx.drawImage(head, x[z], y[z]);
             } else {
-                ctx.drawImage(ball, x[z], y[z]);
+                ctx.fillStyle = getRandomColor();
+                ctx.fillRect(x[z], y[z], 10, 10);
+                //ctx.drawImage(ball, x[z], y[z]);
             }
         }    
     } else {
@@ -220,7 +222,6 @@ function doDrawingWithPath(path) {
         var x_delta = x[0];
         var y_delta = y[0];
         var path_arr = path.split(",");
-        console.log(path_arr);
         for(var i = 0; i < path_arr.length; i+=2){
             x_delta += path_arr[i]; 
             y_delta += path_arr[i+1]; 
@@ -243,7 +244,6 @@ function doDrawingWithPath(path) {
 }
 
 function drawPath(path) {
-    console.log("function drawPath(path)");
     var x_delta = x[0];
     var y_delta = y[0];
     for(var i = 0; i < path.length; i++){
@@ -282,12 +282,8 @@ class Node {
 
 
 function getNewPositions(current_node, end_node){
-    console.log(current_node);
-    console.log(end_node);
     var x_delta = end_node.position[0] - current_node.position[0];
-    console.log("x_delta:", x_delta);
     var y_delta = end_node.position[1] - current_node.position[1];
-    console.log("y_delta:", y_delta);
     var new_positions = [];
     if(x_delta > 0){
         new_positions.push([1, 0]);
@@ -306,11 +302,7 @@ function getNewPositions(current_node, end_node){
 
 
 function findAndRemoveNode(node_list, node) {
-    console.log("node_list:", node_list);
-    console.log("node:", node);
     for(var j = 0; j < node_list.length; j++){
-        console.log("node_list[j].position:", node_list[j].position);
-        console.log("node.position:", node.position);
         if((node_list[j].position[0] == node.position[0]) && (node_list[j].position[1] == node.position[1])){
             node_list.pop(j);
             return node_list;
@@ -339,7 +331,6 @@ function aStar(start, end) {
 
 
     while (open_list.length > 0){
-        //console.log("open_list.length:", open_list.length);
         if(open_list.length > 1000){
             exit(0);
         }
@@ -364,9 +355,7 @@ function aStar(start, end) {
             while (current != null){
                 path.push(current.position);
                 current = current.parent;
-                console.log("path.length:", path.length);
             }
-            console.log("path:", path);
             return path;
         }
 
@@ -375,8 +364,6 @@ function aStar(start, end) {
         // var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
         for(var i = 0; i < new_positions.length; i++){
             new_positions = getNewPositions(current_node, end_node); 
-            console.log("current_node:", current_node);
-            console.log("new_positions:", new_positions);
 
             var new_position = new_positions[i];
 
@@ -404,12 +391,10 @@ function aStar(start, end) {
                 var new_node = new Node();
                 new_node.position = node_position;
                 new_node.parent = current_node;
-                console.log("new_node:", new_node);
                 // Push the node
                 children.push(new_node);
             }
         }
-        console.log("current_node:", current_node);
         findAndRemoveNode(open_list, current_node);
         //console.log("children.length:", children.length);
         //console.log("children:", children);
@@ -431,25 +416,19 @@ function aStar(start, end) {
             child.f = child.g + child.h;
             var pos_str = "["+child.position[0]+","+child.position[1]+"]";
             if(!(open_str.includes(pos_str))){
-                console.log("adding child:", child);
                 open_list.push(child);
                 open_str += pos_str;
-            }else{
-                console.log("not adding child:", child);
             }
         }
 
     }
-    console.log("Out of while loop");
     if ((current_node.position[0] == end_node.position[0]) && (current_node.position[1] == end_node.position[1])){
         path = []
         current = current_node;
         while (current != null){
             path.push(current.position);
             current = current.parent;
-            console.log("path.length:", path.length);
         }
-        console.log("path:", path);
         return path;
     }
 }
@@ -464,6 +443,7 @@ function findPath() {
     console.log(start);
     console.log("end:");
     console.log(end);
+    pathIndex = 0;
     return path.reverse();
 }
 
@@ -686,6 +666,9 @@ function move() {
         x[z] = x[(z - 1)];
         y[z] = y[(z - 1)];
     }
+    console.log("path.length-1:", path.length-1);
+    console.log("path_index:", path_index);
+    console.log("path[path.length-1]", path[path.length-1]);
     console.log("path[path_index]", path[path_index]);
     x[0] = path[path_index][0];
     y[0] = path[path_index][1];
