@@ -33,8 +33,8 @@ const DOT_SIZE = 10;
 const ALL_DOTS = 900;
 const HISTORY = 900*2;
 const MAX_RAND = 29;
-// const DELAY = 140;
-const DELAY = 50;
+const DELAY = 140;
+// const DELAY = 40;
 const C_HEIGHT = 300;
 const C_WIDTH = 300;    
 
@@ -433,7 +433,7 @@ function aStar(start, end) {
     }
 }
 
-function findPath() {
+function findPath() { 
     var start = [x[0], y[0]];
     var end = [apple_x, apple_y];
     var path = aStar(start, end);
@@ -444,7 +444,8 @@ function findPath() {
     console.log("end:");
     console.log(end);
     pathIndex = 0;
-    return path.reverse();
+    path = path.reverse();
+    return path;
 }
 
 function createNewApple() {
@@ -458,6 +459,7 @@ function createNewApple() {
     dots++;
     newApple = true;
     locateApple();
+    setTimeout("gameCycle()", DELAY);
     path = findPath();
     pathIndex = 0;
     setTimeout("gameCycle()", DELAY);
@@ -465,7 +467,15 @@ function createNewApple() {
 
 
 function checkApple() {
-    if ((x[0] == apple_x) && (y[0] == apple_y)) {
+    console.log("path.length-1:", path.length-1);
+    console.log("path_index:", path_index);
+    console.log("path[path_index]:", path[path_index]);
+    console.log("apple_x:", apple_x);
+    console.log("apple_y:", apple_y);
+    console.log("x[0]:", x[0]);
+    console.log("y[0]:", y[0]);
+    if ( ((x[0] == apple_x) && (y[0] == apple_y)) ||  ((path[path_index][0] == apple_x) && (path[path_index][1] == apple_y)) )  {
+        console.log("checkApple() returned true");
         score++;
         document.getElementById('num').value = new Number(score);
         highscore = document.getElementById('highscore').value;
@@ -476,9 +486,12 @@ function checkApple() {
         dots++;
         newApple = true;
         locateApple();
+        setTimeout("gameCycle()", DELAY);
         path = findPath();
         pathIndex = 0;
         setTimeout("gameCycle()", DELAY);
+    }else{
+        console.log("checkApple() returned false");
     }
 }
 
@@ -604,7 +617,7 @@ function changeDirection() {
     }else if(dir[1] < 0){
         dir[1] *= -1;
     }
-    return true;
+    return dir;
 }
 
 function shift_elements_in_array(arr) {
@@ -613,69 +626,15 @@ function shift_elements_in_array(arr) {
     }
 }
 
-
-function slide() {
-    var dir = computeDirection();
-    for (var z = dots; z > 0; z--) {
-        x[z] = x[(z - 1)];
-        y[z] = y[(z - 1)];
-    }
-    var x_sign = 1;
-    var y_sign = 1;
-    if(x[0] < 5){
-        x_sign = 1
-    }
-    if(x[0] > C_WIDTH-10){
-        x_sign = -1
-    }
-    if(y[0] < 5){
-        y_sign = 1
-    }
-    if(x[0] > C_WIDTH-10){
-        y_sign = -1
-    }
-    if(dir[0] == 0){
-        x[0] += DOT_SIZE*x_sign;
-        x_history[0] += DOT_SIZE*x_sign;
-    }
-    if(dir[1] == 0){
-        y[0] += DOT_SIZE*y_sign;
-        y_history[0] += DOT_SIZE*y_sign;
-    }
-
-}
-
-function slither(dir) {
-    for (var z = dots; z > 0; z--) {
-        x[z] = x[(z - 1)];
-        y[z] = y[(z - 1)];
-    }
-    if(dir[0] > 0){
-        x[0] += DOT_SIZE;
-        x_history[0] += DOT_SIZE;
-    }else if(dir[0] < 0){
-        x[0] -= DOT_SIZE;
-        x_history[0] -= DOT_SIZE;
-    }else if(dir[1] > 0){
-        y[0] += DOT_SIZE;
-        y_history[0] += DOT_SIZE;
-    }else if(dir[1] < 0){
-        y[0] -= DOT_SIZE;
-        y_history[0] -= DOT_SIZE;
-    }
-}
-
-function traverse(path) {
-    for (var z = dots; z > 0; z--) {
-        x[z] = x[(z - 1)];
-        y[z] = y[(z - 1)];
-    }
-    x[0] += path[0][0];
-    y[0] += path[0][1];
-    path.shift();
-}
-
 function move() {
+    if(path_index > path.length-1){
+        return;
+    }
+    /*
+    if((path[path_index].position[0] == path[path_index].position[0]) && (path[path.length-1].position[1] == path[path.length-1].position[1])){
+        return; 
+    }
+    */
     if(newApple){
         newApple = false;
     }
@@ -687,13 +646,9 @@ function move() {
     console.log("path_index:", path_index);
     console.log("path[path.length-1]", path[path.length-1]);
     console.log("path[path_index]", path[path_index]);
-    if(path_index > path.length-1){
-        createNewApple();
-        return;
-    }
     x[0] = path[path_index][0];
     y[0] = path[path_index][1];
-    path_index++;
+    path_index += DOT_SIZE;
 }    
 
 function checkCollision() {
