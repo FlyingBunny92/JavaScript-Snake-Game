@@ -366,10 +366,10 @@ function aStar(start, end) {
                 var new_node = new Node();
                 new_node.position = node_position;
                 new_node.parent = current_node;
-                new_node.setParent(current_node);
-                new_node.setPosition(node_position);
-                console.log("new_node.current_node:", new_node.current_node);
-                console.log("new_node.node_position:", new_node.node_position);
+                // new_node.setParent(current_node);
+                // new_node.setPosition(node_position);
+                console.log("new_node.position:", new_node.position);
+                console.log("new_node.parent:", new_node.parent);
 
                 // Push the node
                 children.push(new_node);
@@ -377,7 +377,9 @@ function aStar(start, end) {
             }
         }
 
-        for(child in children){
+        console.log("children.length:", children.length);
+        for(var m = 0; m < children.length; m++){
+            var child = children[m];
             console.log("child:");
             console.log(child);
 
