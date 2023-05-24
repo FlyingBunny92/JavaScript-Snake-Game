@@ -21,6 +21,7 @@ var highscore = 0;
 
 var newApple = false;
 var path = [];
+var path_index = 0;
 
 var leftDirection = false;
 var rightDirection = true;
@@ -63,7 +64,8 @@ function init() {
     loadImages();
     createSnake();
     locateApple();
-    findPath();
+    path = findPath();
+    pathIndex = 0;
     setTimeout("gameCycle()", DELAY);
 }    
 
@@ -79,7 +81,8 @@ function restart() {
     loadImages();
     createSnake();
     locateApple();
-    findPath();
+    path = findPath();
+    pathIndex = 0;
     setTimeout("gameCycle()", DELAY);
 }
 
@@ -161,15 +164,12 @@ function doDrawing() {
             if (z == 0) {
                 ctx.drawImage(head, x[z], y[z]);
             } else {
-                ctx.fillStyle = getRandomColor();
-                ctx.fillRect(x[z], y[z], 10, 10);
-                //ctx.drawImage(ball, x[z], y[z]);
+                ctx.drawImage(ball, x[z], y[z]);
             }
         }    
     } else {
 
         gameOver();
-
     }        
 }
 
@@ -367,7 +367,6 @@ function aStar(start, end) {
                 console.log("path.length:", path.length);
             }
             console.log("path:", path);
-            exit(0);
             return path;
         }
 
@@ -451,7 +450,6 @@ function aStar(start, end) {
             console.log("path.length:", path.length);
         }
         console.log("path:", path);
-        exit(0);
         return path;
     }
 }
@@ -466,8 +464,7 @@ function findPath() {
     console.log(start);
     console.log("end:");
     console.log(end);
-    exit(0);
-    return path;
+    return path.reverse();
 }
 
 
@@ -483,7 +480,8 @@ function checkApple() {
         dots++;
         newApple = true;
         locateApple();
-        findPath();
+        path = findPath();
+        pathIndex = 0;
     }
 }
 
@@ -681,14 +679,17 @@ function traverse(path) {
 }
 
 function move() {
-    var dir = computeDirection();
     if(newApple){
-        slide(dir);
         newApple = false;
     }
-    shift_elements_in_array(x_history);
-    shift_elements_in_array(y_history);
-    traverse(path);
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
+    }
+    console.log("path[path_index]", path[path_index]);
+    x[0] = path[path_index][0];
+    y[0] = path[path_index][1];
+    path_index++;
 }    
 
 function checkCollision() {
