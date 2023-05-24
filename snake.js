@@ -283,7 +283,9 @@ class Node {
 
 function getNewPositions(current_node, end_node){
     var x_delta = end_node.position[0] - current_node.position[0];
+    console.log("x_delta:", x_delta);
     var y_delta = end_node.position[1] - current_node.position[1];
+    console.log("y_delta:", y_delta);
     var new_positions = [];
     if(x_delta > 0){
         new_positions.push([1, 0]);
@@ -374,18 +376,8 @@ function aStar(start, end) {
             if( (node_position[0] >= C_WIDTH) || (node_position[0] <= 0) || (node_position[1] >= C_WIDTH) || (node_position[1] <= 0)) {
                 onBoard = false;
             }
-        
-            // Hit its own tail
-            let noCollision = true;
-            /*
-            for (var z = dots; z > 0; z--) {
-                if ((x[0] == node_position[0]) && (y[0] == node_position[0])) {
-                    noCollision = false;
-                }
-            }
-            */
 
-            if(noCollision && onBoard){
+            if(onBoard){
 
                 // Create the new node
                 var new_node = new Node();
@@ -675,8 +667,19 @@ function traverse(path) {
     path.shift();
 }
 
+function traverse(path) {
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
+    }
+    x[0] += path[0][0];
+    y[0] += path[0][1];
+    path.shift();
+}
+
 function move() {
     if(newApple){
+        slide();
         newApple = false;
     }
     for (var z = dots; z > 0; z--) {
@@ -697,26 +700,31 @@ function move() {
 }    
 
 function checkCollision() {
-    for (var z = dots; z > 0; z--) {
-        if ((z > 4) && (x[0] == x[z]) && (y[0] == y[z])) {
+    for (var z = dots; z > 4; z--) {
+        if ((x[0] == x[z]) && (y[0] == y[z])) {
             inGame = false;
+            exit(0);
         }
     }
 
     if (y[0] >= C_HEIGHT) {
         inGame = false;
+        exit(0);
     }
 
     if (y[0] < 0) {
        inGame = false;
+       exit(0);
     }
 
     if (x[0] >= C_WIDTH) {
       inGame = false;
+      exit(0);
     }
 
     if (x[0] < 0) {
       inGame = false;
+      exit(0);
     }
 }
 
