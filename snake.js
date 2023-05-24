@@ -266,6 +266,8 @@ class Node {
         this.g = 0;
         this.h = 0;
         this.f = 0;
+
+        this.visited = false;
     }
 
     setParent(p){
@@ -279,159 +281,191 @@ class Node {
 
 
 
+function getNewPositions(current_node, end_node){
+    console.log(current_node);
+    console.log(end_node);
+    var x_delta = end_node.position[0] - current_node.position[0];
+    console.log("x_delta:", x_delta);
+    var y_delta = end_node.position[1] - current_node.position[1];
+    console.log("y_delta:", y_delta);
+    var new_positions = [];
+    if(x_delta > 0){
+        new_positions.push([1, 0]);
+    }
+    if(x_delta < 0){
+        new_positions.push([-1, 0]);
+    }
+    if((y_delta > 0)){
+        new_positions.push([0, 1]);
+    }
+    if((y_delta < 0)){
+        new_positions.push([0, -1]);
+    }
+    return new_positions;
+}
 
+
+function findAndRemoveNode(node_list, node) {
+    console.log("node_list:", node_list);
+    console.log("node:", node);
+    for(var j = 0; j < node_list.length; j++){
+        console.log("node_list[j].position:", node_list[j].position);
+        console.log("node.position:", node.position);
+        if((node_list[j].position[0] == node.position[0]) && (node_list[j].position[1] == node.position[1])){
+            node_list.pop(j);
+            return node_list;
+        }
+    }
+    return node_list;
+}
 
 function aStar(start, end) {
 
     var start_node = new Node();
     start_node.position = start;
-    console.log("start_node.position:");
-    console.log(start_node.position);
     start_node.g = start_node.h = start_node.f = 0;
     end_node = new Node();
     end_node.position = end;
     end_node.g = end_node.h = end_node.f = 0;
 
 
-    let open_list = []
-    let closed_list = []
+    var open_str = ""
+    let open_list = [];
+    var closed_str = ""
+    let closed_list = [];
 
     open_list.push(start_node);
+    var current_node = start_node;
 
 
     while (open_list.length > 0){
-        if(open_list.length > 100){
-            console.log("if(open_list.length > 100){");
+        //console.log("open_list.length:", open_list.length);
+        if(open_list.length > 1000){
             exit(0);
         }
-        console.log("open_list.length:");
-        console.log(open_list.length);
 
-        current_node = open_list[0]
-        current_index = 0
+        open_list.sort((a, b) => (a.f < b.f) ? 1 : -1);
+        current_node = open_list[0];
+        current_index = 0;
         for(var i = 0; i < open_list.length; i++){
-            if(open_list[i] < current_node){
+            if(open_list[i].g < current_node.g){
                 current_node = open_list[i];
                 current_index = i;
             }
         }
+        current_node.visited = true;
         open_list.pop(current_index);
         closed_list.push(current_node);
-        open_list.sort((a, b) => (a.f > b.f) ? 1 : -1);
-        console.log("closed_list.push(current_node);");
-        console.log(current_node.position);
-        console.log(end_node.position);
-        if (current_node.position == end_node.position){
+
+
+        if ((current_node.position[0] == end_node.position[0]) && (current_node.position[1] == end_node.position[1])){
             path = []
             current = current_node;
             while (current != null){
                 path.push(current.position);
                 current = current.parent;
-                console.log("return path;");
-                exit(0);
-                return path;
+                console.log("path.length:", path.length);
             }
+            console.log("path:", path);
+            exit(0);
+            return path;
         }
 
         var children = []
-        console.log("children:");
-        var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
+        var new_positions = getNewPositions(current_node, end_node); 
+        // var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
         for(var i = 0; i < new_positions.length; i++){
+            new_positions = getNewPositions(current_node, end_node); 
+            console.log("current_node:", current_node);
+            console.log("new_positions:", new_positions);
+
             var new_position = new_positions[i];
-            console.log("new_position:");
-            console.log(new_position);
 
             let node_position = [current_node.position[0] + new_position[0], current_node.position[1] + new_position[1]];
-            console.log("node_position:");
-            console.log(node_position);
 
             // Off the board
             let onBoard = true;
             if( (node_position[0] >= C_WIDTH) || (node_position[0] <= 0) || (node_position[1] >= C_WIDTH) || (node_position[1] <= 0)) {
-                console.log("offBoard = false;");
                 onBoard = false;
             }
-
+        
             // Hit its own tail
             let noCollision = true;
+            /*
             for (var z = dots; z > 0; z--) {
                 if ((x[0] == node_position[0]) && (y[0] == node_position[0])) {
-                    console.log("noCollision = false;");
                     noCollision = false;
                 }
             }
-            console.log("noCollision:", noCollision);
-            console.log("onBoard:", onBoard);
+            */
+
             if(noCollision && onBoard){
-                console.log("if(noCollision && onBoard)");
+
                 // Create the new node
-                console.log("node_position:");
-                console.log(node_position);
-                console.log("current_node:");
-                console.log(current_node);
                 var new_node = new Node();
                 new_node.position = node_position;
                 new_node.parent = current_node;
-                // new_node.setParent(current_node);
-                // new_node.setPosition(node_position);
-                console.log("new_node.position:", new_node.position);
-                console.log("new_node.parent:", new_node.parent);
-
+                console.log("new_node:", new_node);
                 // Push the node
                 children.push(new_node);
-                console.log("children.length:", children.length);
             }
         }
-
-        console.log("children.length:", children.length);
+        console.log("current_node:", current_node);
+        findAndRemoveNode(open_list, current_node);
+        //console.log("children.length:", children.length);
+        //console.log("children:", children);
         for(var m = 0; m < children.length; m++){
             var child = children[m];
-            console.log("child:");
-            console.log(child);
 
-            var alreadyInClosedList = false;
-            for(closed_child in closed_list){
-                if(child == closed_child){
-                    alreadyInClosedList = true;
-                    break;
-                }
-            }
-            if(alreadyInClosedList){
+            /*
+            var pos_str_1 = "["+child.position[0]+","+child.position[1]+"]";
+            if(!(closed_str.includes(pos_str_1))){
+                closed_str += pos_str_1;
                 continue;
             }
+            */
 
             child.g = current_node.g + 1;
-            console.log("child.position:", child.position);
-            console.log("end_node.position:", end_node.position);
             var p1 = Math.pow(child.position[0] - end_node.position[0], 2);
             var p2 = Math.pow(child.position[1] - end_node.position[1], 2);
             child.h = p1 + p2;
             child.f = child.g + child.h;
-
-            var alreadyInOpenList = false;
-            for(open_node in open_list){
-                if( (child == open_node) && (child.g > open_node.g) ){
-                    alreadyInOpenList = true;
-                }
-            }
-
-            if(!alreadyInOpenList){
+            var pos_str = "["+child.position[0]+","+child.position[1]+"]";
+            if(!(open_str.includes(pos_str))){
+                console.log("adding child:", child);
                 open_list.push(child);
+                open_str += pos_str;
+            }else{
+                console.log("not adding child:", child);
             }
-            
         }
 
-        // var g = abs(x[0]-x_delta);
-        // var h = Math.pow((apple_x-x_delta), 2) + Math.pow((apple_y-y_delta), 2);
-        // var f = g + h;
     }
-
+    console.log("Out of while loop");
+    if ((current_node.position[0] == end_node.position[0]) && (current_node.position[1] == end_node.position[1])){
+        path = []
+        current = current_node;
+        while (current != null){
+            path.push(current.position);
+            current = current.parent;
+            console.log("path.length:", path.length);
+        }
+        console.log("path:", path);
+        exit(0);
+        return path;
+    }
 }
 
 function findPath() {
-    var path = aStar([x[0], y[0]], [apple_x, apple_y]);
+    var start = [x[0], y[0]];
+    var end = [apple_x, apple_y];
+    var path = aStar(start, end);
     console.log("path:");
     console.log(path);
+    console.log("start:");
+    console.log(start);
+    console.log("end:");
+    console.log(end);
     exit(0);
     return path;
 }
