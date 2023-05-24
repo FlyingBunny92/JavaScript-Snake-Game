@@ -300,6 +300,10 @@ function aStar(start, end) {
 
 
     while (open_list.length > 0){
+        if(open_list.length > 100){
+            console.log("if(open_list.length > 100){");
+            exit(0);
+        }
         console.log("open_list.length:");
         console.log(open_list.length);
 
@@ -313,6 +317,7 @@ function aStar(start, end) {
         }
         open_list.pop(current_index);
         closed_list.push(current_node);
+        open_list.sort((a, b) => (a.f > b.f) ? 1 : -1);
         console.log("closed_list.push(current_node);");
         console.log(current_node.position);
         console.log(end_node.position);
@@ -323,6 +328,7 @@ function aStar(start, end) {
                 path.push(current.position);
                 current = current.parent;
                 console.log("return path;");
+                exit(0);
                 return path;
             }
         }
