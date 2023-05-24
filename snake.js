@@ -278,6 +278,15 @@ class Node {
 }
 
 
+function compare( a, b ) {
+  if ( a.f < b.f ){
+    return -1;
+  }
+  if ( a.f > b.f ){
+    return 1;
+  }
+  return 0;
+}
 
 
 
@@ -313,6 +322,7 @@ function aStar(start, end) {
         }
         open_list.pop(current_index);
         closed_list.push(current_node);
+        // open_list.sort( compare );
         console.log("closed_list.push(current_node);");
         console.log(current_node.position);
         console.log(end_node.position);
