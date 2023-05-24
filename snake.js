@@ -676,9 +676,6 @@ function traverse(path) {
 }
 
 function move() {
-    if(path_index > path.length-1){
-        createNewApple();
-    }
     if(newApple){
         newApple = false;
     }
@@ -690,6 +687,10 @@ function move() {
     console.log("path_index:", path_index);
     console.log("path[path.length-1]", path[path.length-1]);
     console.log("path[path_index]", path[path_index]);
+    if(path_index > path.length-1){
+        createNewApple();
+        return;
+    }
     x[0] = path[path_index][0];
     y[0] = path[path_index][1];
     path_index++;
