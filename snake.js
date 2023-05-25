@@ -73,6 +73,18 @@ class Node {
 }
 
 
+class Position {
+    constructor(x, y, visition)
+    {
+        this.x = null;
+        this.y = null;
+
+        this.visited = false;
+    }
+
+}
+
+
 function init() {
     canvas = document.getElementById('myCanvas');
     ctx = canvas.getContext('2d');
@@ -317,6 +329,7 @@ function aStar(start, end) {
     let open_list = [];
     var closed_str = ""
     let closed_list = [];
+    var node_count = 0;
 
     open_list.push(start_node);
     var current_node = start_node;
@@ -352,14 +365,32 @@ function aStar(start, end) {
         }
 
         var children = []
-        var new_positions = getNewPositions(current_node, end_node); 
-        // var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
-        for(var i = 0; i < new_positions.length; i++){
-            new_positions = getNewPositions(current_node, end_node); 
 
-            var new_position = new_positions[i];
+        /*
+        var new_positions = [new Position(0, -1, false), new Position(0, 1, false), new Position(-1, 0, false), 
+                            new Position(1, 0, false), new Position(-1, -1, false), new Position(1, -1, false), new Position(1, 1, false)];
+        */
+        var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
+        if(node_count > 3){
+            new_positions = getNewPositions(current_node, end_node);
+        }
+        node_count++;
+        
 
+        while(new_positions.length > 0){
+            var new_position = new_positions[0];
+            console.log("i:", i);
+            console.log("new_positions:", new_positions);
+            console.log("new_position:", new_position);
+            console.log("current_node:", current_node);
             let node_position = [current_node.position[0] + new_position[0], current_node.position[1] + new_position[1]];
+
+            var collision = false;
+            for (var z = dots; z < 0; z--) {
+                if ((node_position[0] == x[z]) && (node_position[1] == y[z])) {
+                        collision = true;
+                    }
+             }
 
             // Off the board
             let onBoard = true;
@@ -375,7 +406,7 @@ function aStar(start, end) {
                 new_node.position = node_position;
                 new_node.parent = current_node;
                 // Push the node
-                var collision = false;
+
                 console.log(new_node);
                 for (var z = dots; z < 0; z--) {
                     if ((new_node.position[0] == x[z]) && (new_node.position[1] == y[z])) {
@@ -387,6 +418,7 @@ function aStar(start, end) {
                  }
 
             }
+            new_positions.pop(0);
         }
         findAndRemoveNode(open_list, current_node);
 
@@ -400,8 +432,6 @@ function aStar(start, end) {
                 continue;
             }
             */
-
-    
 
             child.g = current_node.g + 1;
             var p1 = Math.pow(child.position[0] - end_node.position[0], 2);
@@ -439,6 +469,9 @@ function findPath() {
     var start = [x[0], y[0]];
     var end = [apple_x, apple_y];
     var path = aStar(start, end);
+    console.log("path:", path);
+    console.log("start:", start);
+    console.log("end:", end);
     pathIndex = 0;
     path = path.reverse();
     return path;
@@ -603,6 +636,33 @@ function shift() {
             y[0] -= DOT_SIZE;
         }
     }
+    shift_elements_in_array(x);
+    shift_elements_in_array(y);
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
+    }
+    if(shift_x){
+        console.log("if(shift_x){");
+        if(x[0] + DOT_SIZE < C_WIDTH){
+            console.log("if(x[0] + DOT_SIZE < C_WIDTH){");
+            x[0] += DOT_SIZE;
+        }else if(x[0] - DOT_SIZE > 0){
+            console.log("if(x[0] - DOT_SIZE > 0){");
+            x[0] -= DOT_SIZE;
+        }
+
+    }
+    if(shift_y){
+        console.log("if(shift_y){");
+        if(y[0] + DOT_SIZE < C_WIDTH){
+            console.log("if(y[0] + DOT_SIZE < C_WIDTH){");
+            y[0] += DOT_SIZE;
+        }else if(y[0] - DOT_SIZE > 0){
+            console.log("if(y[0] - DOT_SIZE > 0){");
+            y[0] -= DOT_SIZE;
+        }
+    }
 }
 
 
@@ -619,7 +679,13 @@ function movePiece() {
 
     x[0] = path[pathIndex][0];
     y[0] = path[pathIndex][1];
-    pathIndex += DOT_SIZE;
+    if(pathIndex+DOT_SIZE >= path.length-2){
+        pathIndex++;
+    }else{
+        pathIndex += DOT_SIZE;
+    }
+    console.log("path[pathIndex]:", path[pathIndex]);
+    console.log("pathIndex:", pathIndex);
 
 }    
 
