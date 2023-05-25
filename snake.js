@@ -181,14 +181,12 @@ function gameOver() {
     if(score > highscore){
         highscore = score;
     }
-    console.log("highscore:", highscore)
     localStorage.setItem("highscore", highscore);
     var score_sum = 0;
     if (localStorage.getItem("score_sum") != null) {
         score_sum = parseInt(localStorage.getItem("score_sum"));
     }
     score_sum += score;
-    console.log("score_sum:", score_sum)
     localStorage.setItem("score_sum", score_sum);
     var runs = 0;
     if (localStorage.getItem("runs") != null) {
@@ -196,9 +194,7 @@ function gameOver() {
     }
     runs += 1;
     localStorage.setItem("runs", runs);
-    console.log("runs:", runs);
     var avg_score = score_sum / runs;
-    console.log("avg_score:", avg_score);
     localStorage.removeItem('avg_score');
     localStorage.setItem("avg_score", avg_score);
     ctx.fillStyle = 'white';
@@ -280,9 +276,7 @@ function shift_elements_in_array(arr) {
 
 function getNewPositions(current_node, end_node){
     var x_delta = end_node.position[0] - current_node.position[0];
-    // console.log("x_delta:", x_delta);
     var y_delta = end_node.position[1] - current_node.position[1];
-    // console.log("y_delta:", y_delta);
     var new_positions = [];
     if(x_delta > 0){
         new_positions.push([1, 0]);
@@ -363,7 +357,6 @@ function aStar(start, end) {
         // var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
         for(var i = 0; i < new_positions.length; i++){
             new_positions = getNewPositions(current_node, end_node); 
-            console.log("new_positions:", new_positions);
 
             var new_position = new_positions[i];
 
@@ -385,8 +378,7 @@ function aStar(start, end) {
             }
         }
         findAndRemoveNode(open_list, current_node);
-        //console.log("children.length:", children.length);
-        //console.log("children:", children);
+
         for(var m = 0; m < children.length; m++){
             var child = children[m];
 
@@ -426,13 +418,13 @@ function findPath() {
     var start = [x[0], y[0]];
     var end = [apple_x, apple_y];
     var path = aStar(start, end);
-    pathIndex = 0;
     console.log("path:");
     console.log(path);
     console.log("start:");
     console.log(start);
     console.log("end:");
     console.log(end);
+    pathIndex = 0;
     path = path.reverse();
     return path;
 }
@@ -443,7 +435,6 @@ function move() {
     var dir = computeDirection();
     if(safe==false){
         var result = changeDirection();
-        console.log("result:", result);
     }
     shift_elements_in_array(x_history);
     shift_elements_in_array(y_history);
@@ -503,9 +494,6 @@ function shiftPiece() {
 
 
 function movePiece() {
-    console.log("function movePiece() {");
-    console.log("path.length:", path.length);
-    console.log("pathIndex:", pathIndex);
     if(path.length-1 < pathIndex){
         return;
     }
