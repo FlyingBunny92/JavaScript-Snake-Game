@@ -222,6 +222,7 @@ function checkApple() {
         dots++;
         locateApple();
         shiftPiece();
+        shiftPiece();
         path = findPath();
         pathIndex = 0;
         
@@ -482,10 +483,21 @@ function shiftPiece() {
         y[z] = y[(z - 1)];
     }
     if(shift_x){
-        x[0] += DOT_SIZE;
+        if(x[0] + DOT_SIZE < C_WIDTH){
+            x[0] += DOT_SIZE;
+        }
+        if(x[0] - DOT_SIZE > 0){
+            x[0] -= DOT_SIZE;
+        }
+
     }
     if(shift_y){
-        y[0] += DOT_SIZE;
+        if(y[0] + DOT_SIZE < C_WIDTH){
+            y[0] += DOT_SIZE;
+        }
+        if(y[0] - DOT_SIZE > 0){
+            y[0] -= DOT_SIZE;
+        }
     }
 }
 
