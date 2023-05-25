@@ -19,6 +19,9 @@ var runs = 0;
 var score = 0;
 var highscore = 0;
 
+var path = [];
+var pathIndex = 0;
+
 var leftDirection = false;
 var rightDirection = true;
 var upDirection = false;
@@ -45,6 +48,31 @@ var y = new Array(ALL_DOTS);
 var x_history = new Array(HISTORY);
 var y_history = new Array(HISTORY);
 
+
+class Node {
+    constructor()
+    {
+        this.parent = null;
+        this.position = null;
+
+
+        this.g = 0;
+        this.h = 0;
+        this.f = 0;
+
+        this.visited = false;
+    }
+
+    setParent(p){
+        this.parent = p;
+    }
+    setPosition(p){
+        this.position = p;
+    }
+
+}
+
+
 function init() {
     canvas = document.getElementById('myCanvas');
     ctx = canvas.getContext('2d');
@@ -55,6 +83,8 @@ function init() {
     loadImages();
     createSnake();
     locateApple();
+    path = findPath();
+    pathIndex = 0;
     setTimeout("gameCycle()", DELAY);
 }    
 
@@ -68,6 +98,8 @@ function restart() {
     loadImages();
     createSnake();
     locateApple();
+    path = findPath();
+    pathIndex = 0;
     setTimeout("gameCycle()", DELAY);
 }
 
@@ -189,7 +221,10 @@ function checkApple() {
         }
         dots++;
         locateApple();
+        path = findPath();
+        pathIndex = 0;
     }
+    
 }
 
 
@@ -240,6 +275,166 @@ function shift_elements_in_array(arr) {
     }
 }
 
+function getNewPositions(current_node, end_node){
+    var x_delta = end_node.position[0] - current_node.position[0];
+    // console.log("x_delta:", x_delta);
+    var y_delta = end_node.position[1] - current_node.position[1];
+    // console.log("y_delta:", y_delta);
+    var new_positions = [];
+    if(x_delta > 0){
+        new_positions.push([1, 0]);
+    }
+    if(x_delta < 0){
+        new_positions.push([-1, 0]);
+    }
+    if((y_delta > 0)){
+        new_positions.push([0, 1]);
+    }
+    if((y_delta < 0)){
+        new_positions.push([0, -1]);
+    }
+    return new_positions;
+}
+
+
+function findAndRemoveNode(node_list, node) {
+    for(var j = 0; j < node_list.length; j++){
+        if((node_list[j].position[0] == node.position[0]) && (node_list[j].position[1] == node.position[1])){
+            node_list.pop(j);
+            return node_list;
+        }
+    }
+    return node_list;
+}
+
+
+function aStar(start, end) {
+
+    var start_node = new Node();
+    start_node.position = start;
+    start_node.g = start_node.h = start_node.f = 0;
+    end_node = new Node();
+    end_node.position = end;
+    end_node.g = end_node.h = end_node.f = 0;
+
+
+    var open_str = ""
+    let open_list = [];
+    var closed_str = ""
+    let closed_list = [];
+
+    open_list.push(start_node);
+    var current_node = start_node;
+
+
+    while (open_list.length > 0){
+        if(open_list.length > 1000){
+            exit(0);
+        }
+
+        open_list.sort((a, b) => (a.f < b.f) ? 1 : -1);
+        current_node = open_list[0];
+        current_index = 0;
+        for(var i = 0; i < open_list.length; i++){
+            if(open_list[i].g < current_node.g){
+                current_node = open_list[i];
+                current_index = i;
+            }
+        }
+        current_node.visited = true;
+        open_list.pop(current_index);
+        closed_list.push(current_node);
+
+
+        if ((current_node.position[0] == end_node.position[0]) && (current_node.position[1] == end_node.position[1])){
+            path = []
+            current = current_node;
+            while (current != null){
+                path.push(current.position);
+                current = current.parent;
+            }
+            return path;
+        }
+
+        var children = []
+        var new_positions = getNewPositions(current_node, end_node); 
+        // var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
+        for(var i = 0; i < new_positions.length; i++){
+            new_positions = getNewPositions(current_node, end_node); 
+
+            var new_position = new_positions[i];
+
+            let node_position = [current_node.position[0] + new_position[0], current_node.position[1] + new_position[1]];
+
+            // Off the board
+            let onBoard = true;
+            if( (node_position[0] >= C_WIDTH) || (node_position[0] <= 0) || (node_position[1] >= C_WIDTH) || (node_position[1] <= 0)) {
+                onBoard = false;
+            }
+
+            if(onBoard){
+
+                // Create the new node
+                var new_node = new Node();
+                new_node.position = node_position;
+                new_node.parent = current_node;
+                // Push the node
+                children.push(new_node);
+            }
+        }
+        findAndRemoveNode(open_list, current_node);
+        //console.log("children.length:", children.length);
+        //console.log("children:", children);
+        for(var m = 0; m < children.length; m++){
+            var child = children[m];
+
+            /*
+            var pos_str_1 = "["+child.position[0]+","+child.position[1]+"]";
+            if(!(closed_str.includes(pos_str_1))){
+                closed_str += pos_str_1;
+                continue;
+            }
+            */
+
+            child.g = current_node.g + 1;
+            var p1 = Math.pow(child.position[0] - end_node.position[0], 2);
+            var p2 = Math.pow(child.position[1] - end_node.position[1], 2);
+            child.h = p1 + p2;
+            child.f = child.g + child.h;
+            var pos_str = "["+child.position[0]+","+child.position[1]+"]";
+            if(!(open_str.includes(pos_str))){
+                open_list.push(child);
+                open_str += pos_str;
+            }
+        }
+
+    }
+    if ((current_node.position[0] == end_node.position[0]) && (current_node.position[1] == end_node.position[1])){
+        path = []
+        current = current_node;
+        while (current != null){
+            path.push(current.position);
+            current = current.parent;
+        }
+        return path;
+    }
+}
+
+function findPath() {
+    var start = [x[0], y[0]];
+    var end = [apple_x, apple_y];
+    var path = aStar(start, end);
+    pathIndex = 0;
+    path = path.reverse();
+    console.log("path:");
+    console.log(path);
+    console.log("start:");
+    console.log(start);
+    console.log("end:");
+    console.log(end);
+    return path;
+}
+
 function move() {
     var dir = computeDirection();
     var safe = checkSafe(x, y, dir);
@@ -268,6 +463,26 @@ function move() {
         y_history[0] -= DOT_SIZE;
     }
     var dir = computeDirection();
+}
+
+function movePiece() {
+    console.log("function movePiece() {");
+    console.log("path.length:", path.length);
+    console.log("pathIndex:", pathIndex);
+    if(path.length-1 < pathIndex){
+        return;
+    }
+    shift_elements_in_array(x);
+    shift_elements_in_array(y);
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
+    }
+
+    x[0] = path[pathIndex][0];
+    y[0] = path[pathIndex][1];
+    pathIndex += DOT_SIZE;
+
 }    
 
 function checkCollision() {
@@ -308,10 +523,9 @@ function locateApple() {
 function gameCycle() {
     
     if (inGame) {
-
         checkApple();
         checkCollision();
-        move();
+        movePiece();
         doDrawing();
         setTimeout("gameCycle()", DELAY);
     }
