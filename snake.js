@@ -389,9 +389,10 @@ function aStar(start, end) {
                 continue;
             }
             */
-            for (var z = dots; z > 4; z--) {
+           var collision = false;
+            for (var z = dots; z > 3; z--) {
                 if ((child.position[0] == x[z]) && (child.position[1] == y[z])) {
-                    continue;
+                    collision = true;
                 }
             }
     
@@ -403,8 +404,10 @@ function aStar(start, end) {
             child.f = child.g + child.h;
             var pos_str = "["+child.position[0]+","+child.position[1]+"]";
             if(!(open_str.includes(pos_str))){
-                open_list.push(child);
-                open_str += pos_str;
+                if(!collision){
+                    open_list.push(child);
+                    open_str += pos_str;
+                }
             }
         }
 
@@ -542,12 +545,13 @@ function movePiece() {
 function checkCollision() {
 
 
-    for (var z = dots; z > 4; z--) {
+    for (var z = dots; z > 3; z--) {
         if ((x[0] == x[z]) && (y[0] == y[z])) {
             inGame = false;
             exit(0);
         }
     }
+
 
     if (y[0] >= C_HEIGHT) {
         inGame = false;
