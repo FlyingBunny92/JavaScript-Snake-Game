@@ -283,9 +283,9 @@ class Node {
 
 function getNewPositions(current_node, end_node){
     var x_delta = end_node.position[0] - current_node.position[0];
-    console.log("x_delta:", x_delta);
+    // console.log("x_delta:", x_delta);
     var y_delta = end_node.position[1] - current_node.position[1];
-    console.log("y_delta:", y_delta);
+    // console.log("y_delta:", y_delta);
     var new_positions = [];
     if(x_delta > 0){
         new_positions.push([1, 0]);
@@ -429,14 +429,15 @@ function findPath() {
     var start = [x[0], y[0]];
     var end = [apple_x, apple_y];
     var path = aStar(start, end);
+    pathIndex = 0;
+    path = path.reverse();
     console.log("path:");
     console.log(path);
     console.log("start:");
     console.log(start);
     console.log("end:");
     console.log(end);
-    pathIndex = 0;
-    return path.reverse();
+    return path;
 }
 
 function createNewApple() {
@@ -452,6 +453,7 @@ function createNewApple() {
     locateApple();
     path = findPath();
     pathIndex = 0;
+    changeDirectionWithSearch();
     setTimeout("gameCycle()", DELAY);
 }
 
@@ -567,7 +569,8 @@ function searchRight() {
 }
 
 
-function changeDirectionWithSearch(dir) {
+function changeDirectionWithSearch() {
+    var dir = computeDirection();
     if((dir[0] < 0) && searchLeft()){
         dir[0] *= -1;
         dir[1] *= -1;
@@ -678,8 +681,10 @@ function traverse(path) {
 }
 
 function move() {
+    if(path_index > path.length-1){
+        return;
+    }
     if(newApple){
-        slide();
         newApple = false;
     }
     for (var z = dots; z > 0; z--) {
@@ -690,13 +695,9 @@ function move() {
     console.log("path_index:", path_index);
     console.log("path[path.length-1]", path[path.length-1]);
     console.log("path[path_index]", path[path_index]);
-    if(path_index > path.length-1){
-        createNewApple();
-        return;
-    }
     x[0] = path[path_index][0];
     y[0] = path[path_index][1];
-    path_index++;
+    path_index += (DOT_SIZE/2);
 }    
 
 function checkCollision() {
