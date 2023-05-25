@@ -218,7 +218,6 @@ function checkApple() {
         dots++;
         locateApple();
         shiftPiece();
-        shiftPiece();
         path = findPath();
         pathIndex = 0;
         
@@ -357,6 +356,7 @@ function aStar(start, end) {
         // var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
         for(var i = 0; i < new_positions.length; i++){
             new_positions = getNewPositions(current_node, end_node); 
+            console.log("new_positions:", new_positions);
 
             var new_position = new_positions[i];
 
@@ -389,6 +389,12 @@ function aStar(start, end) {
                 continue;
             }
             */
+            for (var z = dots; z > 4; z--) {
+                if ((child.position[0] == x[z]) && (child.position[1] == y[z])) {
+                    continue;
+                }
+            }
+    
 
             child.g = current_node.g + 1;
             var p1 = Math.pow(child.position[0] - end_node.position[0], 2);
@@ -461,11 +467,34 @@ function move() {
 function shiftPiece() {
     var shift_x = false;
     var shift_y = false;
-    if(x[0]-x[1] == 0){
+    if(x[0]-x[3] == 0){
         shift_x = true;
     }
-    if(y[0]-y[1] == 0){
+    if(y[0]-y[3] == 0){
         shift_y = true;
+    }
+    shift_elements_in_array(x);
+    shift_elements_in_array(y);
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
+    }
+    if(shift_x){
+        if(x[0] + DOT_SIZE < C_WIDTH){
+            x[0] += DOT_SIZE;
+        }
+        if(x[0] - DOT_SIZE > 0){
+            x[0] -= DOT_SIZE;
+        }
+
+    }
+    if(shift_y){
+        if(y[0] + DOT_SIZE < C_WIDTH){
+            y[0] += DOT_SIZE;
+        }
+        if(y[0] - DOT_SIZE > 0){
+            y[0] -= DOT_SIZE;
+        }
     }
     shift_elements_in_array(x);
     shift_elements_in_array(y);
@@ -512,9 +541,9 @@ function movePiece() {
 
 function checkCollision() {
 
-    for (var z = dots; z > 0; z--) {
 
-        if ((z > 4) && (x[0] == x[z]) && (y[0] == y[z])) {
+    for (var z = dots; z > 4; z--) {
+        if ((x[0] == x[z]) && (y[0] == y[z])) {
             inGame = false;
             exit(0);
         }
