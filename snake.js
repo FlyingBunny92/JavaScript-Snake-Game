@@ -217,7 +217,7 @@ function checkApple() {
         }
         dots++;
         locateApple();
-        shiftPiece();
+        shift();
         path = findPath();
         pathIndex = 0;
         
@@ -356,7 +356,6 @@ function aStar(start, end) {
         // var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
         for(var i = 0; i < new_positions.length; i++){
             new_positions = getNewPositions(current_node, end_node); 
-            console.log("new_positions:", new_positions);
 
             var new_position = new_positions[i];
 
@@ -368,13 +367,25 @@ function aStar(start, end) {
                 onBoard = false;
             }
 
+
+
             if(onBoard){
                 // Create the new node
                 var new_node = new Node();
                 new_node.position = node_position;
                 new_node.parent = current_node;
                 // Push the node
-                children.push(new_node);
+                var collision = false;
+                console.log(new_node);
+                for (var z = dots; z < 0; z--) {
+                    if ((new_node.position[0] == x[z]) && (new_node.position[1] == y[z])) {
+                            collision = true;
+                        }
+                 }
+                 if(!collision){
+                    children.push(new_node);
+                 }
+
             }
         }
         findAndRemoveNode(open_list, current_node);
@@ -389,12 +400,7 @@ function aStar(start, end) {
                 continue;
             }
             */
-           var collision = false;
-            for (var z = dots; z > 3; z--) {
-                if ((child.position[0] == x[z]) && (child.position[1] == y[z])) {
-                    collision = true;
-                }
-            }
+
     
 
             child.g = current_node.g + 1;
@@ -404,6 +410,12 @@ function aStar(start, end) {
             child.f = child.g + child.h;
             var pos_str = "["+child.position[0]+","+child.position[1]+"]";
             if(!(open_str.includes(pos_str))){
+                var collision = false;
+                for (var z = dots; z < 0; z--) {
+                 if ((child.position[0] == x[z]) && (child.position[1] == y[z])) {
+                         collision = true;
+                     }
+                 }
                 if(!collision){
                     open_list.push(child);
                     open_str += pos_str;
@@ -427,12 +439,6 @@ function findPath() {
     var start = [x[0], y[0]];
     var end = [apple_x, apple_y];
     var path = aStar(start, end);
-    console.log("path:");
-    console.log(path);
-    console.log("start:");
-    console.log(start);
-    console.log("end:");
-    console.log(end);
     pathIndex = 0;
     path = path.reverse();
     return path;
@@ -470,10 +476,10 @@ function move() {
 function shiftPiece() {
     var shift_x = false;
     var shift_y = false;
-    if(x[0]-x[3] == 0){
+    if(x[0]-x[2] == 0){
         shift_x = true;
     }
-    if(y[0]-y[3] == 0){
+    if(y[0]-y[2] == 0){
         shift_y = true;
     }
     shift_elements_in_array(x);
@@ -482,20 +488,91 @@ function shiftPiece() {
         x[z] = x[(z - 1)];
         y[z] = y[(z - 1)];
     }
-    if(shift_x){
+    if(shift_x==true){
+        console.log("if(shift_x){");
         if(x[0] + DOT_SIZE < C_WIDTH){
+            console.log("x[0] += DOT_SIZE;");
             x[0] += DOT_SIZE;
         }
         if(x[0] - DOT_SIZE > 0){
+            console.log("x[0] -= DOT_SIZE;");
+            x[0] -= DOT_SIZE;
+        }
+
+    }
+    if(shift_y==true){
+        console.log("if(shift_y){");
+        if(y[0] + DOT_SIZE < C_WIDTH){
+            console.log("y[0] += DOT_SIZE;");
+            y[0] += DOT_SIZE;
+        }
+        if(y[0] - DOT_SIZE > 0){
+            console.log("y[0] -= DOT_SIZE;");
+            y[0] -= DOT_SIZE;
+        }
+    }
+    shift_elements_in_array(x);
+    shift_elements_in_array(y);
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
+    }
+    if(shift_x==true){
+        console.log("if(shift_x){");
+        if(x[0] + DOT_SIZE < C_WIDTH){
+            console.log("x[0] += DOT_SIZE;");
+            x[0] += DOT_SIZE;
+        }
+        if(x[0] - DOT_SIZE > 0){
+            console.log("x[0] -= DOT_SIZE;");
+            x[0] -= DOT_SIZE;
+        }
+
+    }
+    if(shift_y==true){
+        console.log("if(shift_y){");
+        if(y[0] + DOT_SIZE < C_WIDTH){
+            console.log("y[0] += DOT_SIZE;");
+            y[0] += DOT_SIZE;
+        }
+        if(y[0] - DOT_SIZE > 0){
+            console.log("y[0] -= DOT_SIZE;");
+            y[0] -= DOT_SIZE;
+        }
+    }
+}
+
+function shift() {
+    // var shift_x = (!((x[0] + DOT_SIZE) in x));
+    // var shift_y = (!((y[0] + DOT_SIZE) in y));
+    var shift_x = (x[0] - x[2]) == 0;
+    console.log("shift_x:", shift_x);
+    var shift_y = (y[0] - y[2]) == 0;
+    console.log("shift_y:", shift_y);
+    shift_elements_in_array(x);
+    shift_elements_in_array(y);
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
+    }
+    if(shift_x){
+        console.log("if(shift_x){");
+        if(x[0] + DOT_SIZE < C_WIDTH){
+            console.log("if(x[0] + DOT_SIZE < C_WIDTH){");
+            x[0] += DOT_SIZE;
+        }else if(x[0] - DOT_SIZE > 0){
+            console.log("if(x[0] - DOT_SIZE > 0){");
             x[0] -= DOT_SIZE;
         }
 
     }
     if(shift_y){
+        console.log("if(shift_y){");
         if(y[0] + DOT_SIZE < C_WIDTH){
+            console.log("if(y[0] + DOT_SIZE < C_WIDTH){");
             y[0] += DOT_SIZE;
-        }
-        if(y[0] - DOT_SIZE > 0){
+        }else if(y[0] - DOT_SIZE > 0){
+            console.log("if(y[0] - DOT_SIZE > 0){");
             y[0] -= DOT_SIZE;
         }
     }
@@ -506,19 +583,23 @@ function shiftPiece() {
         y[z] = y[(z - 1)];
     }
     if(shift_x){
+        console.log("if(shift_x){");
         if(x[0] + DOT_SIZE < C_WIDTH){
+            console.log("if(x[0] + DOT_SIZE < C_WIDTH){");
             x[0] += DOT_SIZE;
-        }
-        if(x[0] - DOT_SIZE > 0){
+        }else if(x[0] - DOT_SIZE > 0){
+            console.log("if(x[0] - DOT_SIZE > 0){");
             x[0] -= DOT_SIZE;
         }
 
     }
     if(shift_y){
+        console.log("if(shift_y){");
         if(y[0] + DOT_SIZE < C_WIDTH){
+            console.log("if(y[0] + DOT_SIZE < C_WIDTH){");
             y[0] += DOT_SIZE;
-        }
-        if(y[0] - DOT_SIZE > 0){
+        }else if(y[0] - DOT_SIZE > 0){
+            console.log("if(y[0] - DOT_SIZE > 0){");
             y[0] -= DOT_SIZE;
         }
     }
