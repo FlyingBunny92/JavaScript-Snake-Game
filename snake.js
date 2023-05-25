@@ -319,7 +319,6 @@ function aStar(start, end) {
     end_node.position = end;
     end_node.g = end_node.h = end_node.f = 0;
 
-
     var open_str = ""
     let open_list = [];
     var closed_str = ""
@@ -363,6 +362,7 @@ function aStar(start, end) {
         // var new_positions = [[0, -1], [0, 1], [-1, 0], [1, 0], [-1, -1], [-1, 1], [1, -1], [1, 1]];
         for(var i = 0; i < new_positions.length; i++){
             new_positions = getNewPositions(current_node, end_node); 
+            console.log("new_positions:", new_positions);
 
             var new_position = new_positions[i];
 
@@ -375,7 +375,6 @@ function aStar(start, end) {
             }
 
             if(onBoard){
-
                 // Create the new node
                 var new_node = new Node();
                 new_node.position = node_position;
@@ -427,13 +426,13 @@ function findPath() {
     var end = [apple_x, apple_y];
     var path = aStar(start, end);
     pathIndex = 0;
-    path = path.reverse();
     console.log("path:");
     console.log(path);
     console.log("start:");
     console.log(start);
     console.log("end:");
     console.log(end);
+    path = path.reverse();
     return path;
 }
 
