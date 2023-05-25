@@ -221,8 +221,10 @@ function checkApple() {
         }
         dots++;
         locateApple();
+        shiftPiece();
         path = findPath();
         pathIndex = 0;
+        
     }
     
 }
@@ -465,6 +467,30 @@ function move() {
     var dir = computeDirection();
 }
 
+function shiftPiece() {
+    var shift_x = false;
+    var shift_y = false;
+    if(x[0]-x[1] == 0){
+        shift_x = true;
+    }
+    if(y[0]-y[1] == 0){
+        shift_y = true;
+    }
+    shift_elements_in_array(x);
+    shift_elements_in_array(y);
+    for (var z = dots; z > 0; z--) {
+        x[z] = x[(z - 1)];
+        y[z] = y[(z - 1)];
+    }
+    if(shift_x){
+        x[0] += DOT_SIZE;
+    }
+    if(shift_y){
+        y[0] += DOT_SIZE;
+    }
+}
+
+
 function movePiece() {
     console.log("function movePiece() {");
     console.log("path.length:", path.length);
@@ -491,23 +517,28 @@ function checkCollision() {
 
         if ((z > 4) && (x[0] == x[z]) && (y[0] == y[z])) {
             inGame = false;
+            exit(0);
         }
     }
 
     if (y[0] >= C_HEIGHT) {
         inGame = false;
+        exit(0);
     }
 
     if (y[0] < 0) {
        inGame = false;
+       exit(0);
     }
 
     if (x[0] >= C_WIDTH) {
       inGame = false;
+      exit(0);
     }
 
     if (x[0] < 0) {
       inGame = false;
+      exit(0);
     }
 }
 
