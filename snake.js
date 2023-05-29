@@ -438,8 +438,9 @@ function findPath() {
     var start = [x[0], y[0]];
     var end = [apple_x, apple_y];
     var path = aStar(start, end);
+    path = path.reverse();
     path_index = 0;
-    return path.reverse();
+    return path;
 }
 
 function createNewApple() {
@@ -707,14 +708,14 @@ function move() {
 }    
 
 function checkCollision() {
-    /*
+
     for (var z = dots; z > 4; z--) {
-        if ((x[0] == x[z]) && (y[0] == y[z])) {
+        if ((z > 4) && (x[0] == x[z]) && (y[0] == y[z])) {
             inGame = false;
             exit(0);
         }
     }
-    */
+
 
     if (y[0] >= C_HEIGHT) {
         inGame = false;
