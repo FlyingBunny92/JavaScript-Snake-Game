@@ -51,6 +51,29 @@ var x_history = new Array(HISTORY);
 var y_history = new Array(HISTORY);
 
 
+class Node {
+    constructor()
+    {
+        this.parent = null;
+        this.position = null;
+
+
+        this.g = 0;
+        this.h = 0;
+        this.f = 0;
+
+        this.visited = false;
+    }
+
+    setParent(p){
+        this.parent = p;
+    }
+    setPosition(p){
+        this.position = p;
+    }
+
+}
+
 
 
 function init() {
@@ -186,14 +209,12 @@ function gameOver() {
     if(score > highscore){
         highscore = score;
     }
-    console.log("highscore:", highscore)
     localStorage.setItem("highscore", highscore);
     var score_sum = 0;
     if (localStorage.getItem("score_sum") != null) {
         score_sum = parseInt(localStorage.getItem("score_sum"));
     }
     score_sum += score;
-    console.log("score_sum:", score_sum)
     localStorage.setItem("score_sum", score_sum);
     var runs = 0;
     if (localStorage.getItem("runs") != null) {
@@ -201,9 +222,7 @@ function gameOver() {
     }
     runs += 1;
     localStorage.setItem("runs", runs);
-    console.log("runs:", runs);
     avgscore = score_sum / runs;
-    console.log("avgscore:", avgscore);
     localStorage.removeItem('avgscore');
     localStorage.setItem("avgscore", avgscore);
     ctx.fillStyle = 'white';
@@ -256,36 +275,11 @@ function drawPath(path) {
 
 
 
-class Node {
-    constructor()
-    {
-        this.parent = null;
-        this.position = null;
-
-
-        this.g = 0;
-        this.h = 0;
-        this.f = 0;
-
-        this.visited = false;
-    }
-
-    setParent(p){
-        this.parent = p;
-    }
-    setPosition(p){
-        this.position = p;
-    }
-
-}
-
 
 
 function getNewPositions(current_node, end_node){
     var x_delta = end_node.position[0] - current_node.position[0];
-    console.log("x_delta:", x_delta);
     var y_delta = end_node.position[1] - current_node.position[1];
-    console.log("y_delta:", y_delta);
     var new_positions = [];
     if(x_delta > 0){
         new_positions.push([1, 0]);
@@ -395,8 +389,6 @@ function aStar(start, end) {
             }
         }
         findAndRemoveNode(open_list, current_node);
-        //console.log("children.length:", children.length);
-        //console.log("children:", children);
         for(var m = 0; m < children.length; m++){
             var child = children[m];
 
@@ -446,12 +438,6 @@ function findPath() {
     var start = [x[0], y[0]];
     var end = [apple_x, apple_y];
     var path = aStar(start, end);
-    console.log("path:");
-    console.log(path);
-    console.log("start:");
-    console.log(start);
-    console.log("end:");
-    console.log(end);
     path_index = 0;
     return path.reverse();
 }
@@ -707,10 +693,6 @@ function move() {
         x[z] = x[(z - 1)];
         y[z] = y[(z - 1)];
     }
-    console.log("path.length-1:", path.length-1);
-    console.log("path_index:", path_index);
-    console.log("path[path.length-1]", path[path.length-1]);
-    console.log("path[path_index]", path[path_index]);
     if(path_index > path.length-1){
         createNewApple();
         return;
@@ -725,14 +707,14 @@ function move() {
 }    
 
 function checkCollision() {
-
+    /*
     for (var z = dots; z > 4; z--) {
         if ((x[0] == x[z]) && (y[0] == y[z])) {
             inGame = false;
             exit(0);
         }
     }
-
+    */
 
     if (y[0] >= C_HEIGHT) {
         inGame = false;
