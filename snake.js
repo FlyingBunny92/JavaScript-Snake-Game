@@ -66,7 +66,7 @@ function init() {
     createSnake();
     locateApple();
     path = findPath();
-    pathIndex = 0;
+    path_index = 0;
     setTimeout("gameCycle()", DELAY);
 }    
 
@@ -83,7 +83,7 @@ function restart() {
     createSnake();
     locateApple();
     path = findPath();
-    pathIndex = 0;
+    path_index = 0;
     setTimeout("gameCycle()", DELAY);
 }
 
@@ -377,7 +377,14 @@ function aStar(start, end) {
                 onBoard = false;
             }
 
-            if(onBoard){
+            var collision = false;
+            for (var z = dots; z > 4; z--) {
+                if ((x[0] == x[z]) && (y[0] == y[z])) {
+                    collision = true;
+                }
+            }
+
+            if(onBoard && !collision){
 
                 // Create the new node
                 var new_node = new Node();
@@ -401,15 +408,25 @@ function aStar(start, end) {
             }
             */
 
-            child.g = current_node.g + 1;
-            var p1 = Math.pow(child.position[0] - end_node.position[0], 2);
-            var p2 = Math.pow(child.position[1] - end_node.position[1], 2);
-            child.h = p1 + p2;
-            child.f = child.g + child.h;
-            var pos_str = "["+child.position[0]+","+child.position[1]+"]";
-            if(!(open_str.includes(pos_str))){
-                open_list.push(child);
-                open_str += pos_str;
+            var collision = false;
+            for (var z = dots; z > 4; z--) {
+                if ((x[0] == x[z]) && (y[0] == y[z])) {
+                    collision = true;
+                }
+            }
+
+            if(!collision)
+            {
+                child.g = current_node.g + 1;
+                var p1 = Math.pow(child.position[0] - end_node.position[0], 2);
+                var p2 = Math.pow(child.position[1] - end_node.position[1], 2);
+                child.h = p1 + p2;
+                child.f = child.g + child.h;
+                var pos_str = "["+child.position[0]+","+child.position[1]+"]";
+                if(!(open_str.includes(pos_str))){
+                    open_list.push(child);
+                    open_str += pos_str;
+                }
             }
         }
 
@@ -435,7 +452,7 @@ function findPath() {
     console.log(start);
     console.log("end:");
     console.log(end);
-    pathIndex = 0;
+    path_index = 0;
     return path.reverse();
 }
 
@@ -451,7 +468,7 @@ function createNewApple() {
     newApple = true;
     locateApple();
     path = findPath();
-    pathIndex = 0;
+    path_index = 0;
     setTimeout("gameCycle()", DELAY);
 }
 
@@ -469,7 +486,7 @@ function checkApple() {
         newApple = true;
         locateApple();
         path = findPath();
-        pathIndex = 0;
+        path_index = 0;
         setTimeout("gameCycle()", DELAY);
     }
 }
@@ -677,11 +694,15 @@ function traverse(path) {
     path.shift();
 }
 
+
+
 function move() {
     if(newApple){
         slide();
         newApple = false;
     }
+    shift_elements_in_array(x_history);
+    shift_elements_in_array(y_history);
     for (var z = dots; z > 0; z--) {
         x[z] = x[(z - 1)];
         y[z] = y[(z - 1)];
@@ -696,18 +717,22 @@ function move() {
     }
     x[0] = path[path_index][0];
     y[0] = path[path_index][1];
-    path_index++;
+    if(path_index+DOT_SIZE < path.legnth-5){
+        path_index += DOT_SIZE;
+    }else{
+        path_index += 1;
+    }
 }    
 
 function checkCollision() {
-    /*
+
     for (var z = dots; z > 4; z--) {
         if ((x[0] == x[z]) && (y[0] == y[z])) {
             inGame = false;
             exit(0);
         }
     }
-    */
+
 
     if (y[0] >= C_HEIGHT) {
         inGame = false;
