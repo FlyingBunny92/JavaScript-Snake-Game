@@ -372,7 +372,7 @@ function aStar(start, end) {
             }
 
             var collision = false;
-            for (var z = dots; z > 4; z--) {
+            for (var z = dots; z > 0; z--) {
                 if ((x[0] == x[z]) && (y[0] == y[z])) {
                     collision = true;
                 }
@@ -401,7 +401,7 @@ function aStar(start, end) {
             */
 
             var collision = false;
-            for (var z = dots; z > 4; z--) {
+            for (var z = dots; z > 0; z--) {
                 if ((x[0] == x[z]) && (y[0] == y[z])) {
                     collision = true;
                 }
